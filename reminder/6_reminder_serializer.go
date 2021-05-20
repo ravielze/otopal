@@ -6,17 +6,18 @@ import (
 	"github.com/ravielze/oculi/common"
 )
 
-type UpdateRequest struct {
-	ReminderType string `json:"reminder_type" binding:"required,lte=6"`
-	Last         string `json:"last" binding:"required,eq=10"`
-	Next         string `json:"next" binding:"required,eq=10"`
-}
-
-type ReminderResponse struct {
-	ReminderType string `json:"reminder_type"`
-	Last         string `json:"last"`
-	Next         string `json:"next"`
-}
+type (
+	UpdateRequest struct {
+		ReminderType string `json:"reminder_type" binding:"required,lte=6"`
+		Last         string `json:"last" binding:"required,eq=10"`
+		Next         string `json:"next" binding:"required,eq=10"`
+	}
+	ReminderResponse struct {
+		ReminderType string `json:"reminder_type"`
+		Last         string `json:"last"`
+		Next         string `json:"next"`
+	}
+)
 
 func (item Reminder) Convert() ReminderResponse {
 	return ReminderResponse{

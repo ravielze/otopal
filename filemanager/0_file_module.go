@@ -24,6 +24,10 @@ func (Module) Reset(db *gorm.DB) {
 	db.Migrator().DropTable(&File{})
 }
 
+func (m Module) Usecase() IUsecase {
+	return m.usecase
+}
+
 func NewModule(db *gorm.DB, g *gin.Engine) Module {
 	storageRoot := os.Getenv("FILE_MANAGER_ROOT")
 	storageComponent := storage.NewStorage(&storage.Config{
