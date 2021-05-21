@@ -1,6 +1,7 @@
 package blog
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -53,11 +54,8 @@ func (uc Usecase) RemoveThumbnail(user auth.User, blogId string, fileId string) 
 	return err2
 }
 
-func (uc Usecase) Create(user auth.User, item interface{}) (Blog, error) {
-	panic("not implemented")
-}
-
 func (uc Usecase) Delete(user auth.User, blogId string) error {
+	//TODO remove file
 	return uc.repo.Delete(Blog{
 		UUIDBase: common.UUIDBase{
 			ID: blogId,
@@ -81,4 +79,11 @@ func (uc Usecase) GetBlogs(page uint) ([]Blog, error) {
 
 func (uc Usecase) GetUserBlogs(user auth.User, page uint) ([]Blog, error) {
 	return uc.repo.GetUserBlogs(user.ID, page)
+}
+
+func (uc Usecase) Create(user auth.User, item BlogRequest) (Blog, error) {
+	if strings.Contains(item.Title, "-") {
+		return Blog{}, errors.New("title cannot contains any '-'")
+	}
+	return uc.repo.Create(item.Convert(user.ID))
 }

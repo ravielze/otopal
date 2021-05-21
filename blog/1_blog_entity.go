@@ -26,17 +26,18 @@ func (Blog) TableName() string {
 }
 
 type IController interface {
-	Create(ctx *gin.Context)
 	GetBlogs(ctx *gin.Context)
 	GetUserBlogs(ctx *gin.Context)
 	GetBlog(ctx *gin.Context)
+
+	Create(ctx *gin.Context)
 	AddThumbnail(ctx *gin.Context)
 	RemoveThumbnail(ctx *gin.Context)
 	Delete(ctx *gin.Context)
 }
 
 type IUsecase interface {
-	Create(user auth.User, item interface{}) (Blog, error)
+	Create(user auth.User, item BlogRequest) (Blog, error)
 
 	GetBlogs(page uint) ([]Blog, error)
 	GetUserBlogs(user auth.User, page uint) ([]Blog, error)
