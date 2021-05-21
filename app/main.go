@@ -7,6 +7,9 @@ import (
 	"github.com/ravielze/oculi/common/middleware"
 	mm "github.com/ravielze/oculi/common/module"
 	"github.com/ravielze/otopal/auth"
+	"github.com/ravielze/otopal/blog"
+	"github.com/ravielze/otopal/blog/blog_tag"
+	"github.com/ravielze/otopal/filemanager"
 	"gorm.io/gorm"
 )
 
@@ -18,6 +21,9 @@ func main() {
 	}, func(db *gorm.DB, g *gin.Engine) {
 		mm.AddModule(essentials.NewModule(db, g))
 		mm.AddModule(auth.NewModule(db, g))
+		mm.AddModule(filemanager.NewModule(db, g))
+		mm.AddModule(blog.NewModule(db, g))
+		mm.AddModule(blog_tag.NewModule(db, g))
 		// Add your module here
 	})
 }

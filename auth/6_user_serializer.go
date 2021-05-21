@@ -1,6 +1,8 @@
 package auth
 
-import "github.com/ravielze/oculi/common"
+import (
+	"github.com/ravielze/oculi/common"
+)
 
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
