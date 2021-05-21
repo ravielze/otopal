@@ -75,7 +75,7 @@ func (repo Repository) Delete(blog Blog) error {
 func (repo Repository) GetBlog(title string, lastEdit time.Time) (Blog, error) {
 	var result Blog
 	if err := repo.db.
-		Where("title = ?", title).
+		Where("LOWER(title) LIKE LOWER(?)", title).
 		Where("updated_at = ?", lastEdit).
 		First(&result).Error; err != nil {
 		return Blog{}, err

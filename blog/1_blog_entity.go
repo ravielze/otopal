@@ -40,7 +40,7 @@ type IUsecase interface {
 
 	GetBlogs(page uint) ([]Blog, error)
 	GetUserBlogs(user auth.User, page uint) ([]Blog, error)
-	GetBlog(title string, time string) (Blog, error)
+	GetBlog(title string, lastEdit string) (Blog, error)
 
 	AddThumbnail(user auth.User, blogId string, item common.FileAttachment) error
 	RemoveThumbnail(user auth.User, blogId string, fileId string) error
