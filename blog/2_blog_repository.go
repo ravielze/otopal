@@ -57,6 +57,7 @@ func (repo Repository) Create(blog Blog) (Blog, error) {
 		Error; err != nil {
 		return Blog{}, err
 	}
+	repo.db.Model(&blog).Preload("Author").First(&blog)
 	return blog, nil
 }
 
@@ -75,6 +76,7 @@ func (repo Repository) Delete(blog Blog) error {
 func (repo Repository) GetBlog(title string, lastEdit time.Time) (Blog, error) {
 	var result Blog
 	if err := repo.db.
+		Preload("Author").
 		Where("LOWER(title) LIKE LOWER(?)", title).
 		Where("updated_at = ?", lastEdit).
 		First(&result).Error; err != nil {
@@ -87,6 +89,7 @@ func (repo Repository) GetBlogs(page uint) ([]Blog, error) {
 	var result []Blog
 	pageOffset := (page - 1) * BLOG_PER_PAGE
 	if err := repo.db.
+		Preload("Author").
 		Offset(int(pageOffset)).
 		Limit(int(BLOG_PER_PAGE)).
 		Find(&result).
@@ -100,6 +103,7 @@ func (repo Repository) GetUserBlogs(userId uint, page uint) ([]Blog, error) {
 	var result []Blog
 	pageOffset := (page - 1) * BLOG_PER_PAGE
 	if err := repo.db.
+		Preload("Author").
 		Where("author_id = ?", userId).
 		Offset(int(pageOffset)).
 		Limit(int(BLOG_PER_PAGE)).
