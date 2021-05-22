@@ -17,6 +17,7 @@ func (Module) Name() string {
 
 func (Module) Reset(db *gorm.DB) {
 	db.Migrator().DropTable(&Tag{})
+	db.Migrator().DropTable(Tag{}.RelatedBlogsTableName())
 }
 
 func NewModule(db *gorm.DB, g *gin.Engine) Module {

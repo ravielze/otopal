@@ -23,10 +23,12 @@ func (Tag) RelatedBlogsTableName() string {
 
 type IController interface {
 	EditBlogTags(ctx *gin.Context)
+	FindBlogs(ctx *gin.Context)
 }
 
 type IUsecase interface {
 	EditBlogTags(user auth.User, blogId string, tags []string) error
+	FindBlogs(tags []string) ([]blog.Blog, error)
 }
 
 type IRepo interface {
@@ -34,4 +36,6 @@ type IRepo interface {
 
 	AddTag(userId uint, blogId string, tag Tag) error
 	ClearTags(userId uint, blogId string) error
+
+	FindBlog(tagName string) ([]blog.Blog, error)
 }

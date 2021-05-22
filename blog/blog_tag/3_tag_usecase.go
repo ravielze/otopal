@@ -1,6 +1,11 @@
 package blog_tag
 
-import "github.com/ravielze/otopal/auth"
+import (
+	"fmt"
+
+	"github.com/ravielze/otopal/auth"
+	"github.com/ravielze/otopal/blog"
+)
 
 type Usecase struct {
 	repo IRepo
@@ -12,18 +17,17 @@ func NewUsecase(repo IRepo) IUsecase {
 
 func (uc Usecase) EditBlogTags(user auth.User, blogId string, tags []string) error {
 	tagsData := make([]Tag, len(tags))
-	for _, x := range tags {
+	for i, x := range tags {
 		if len(x) <= 0 || len(x) > 128 {
 			continue
 		}
-
-		tag, err := uc.repo.CreateOrGet(Tag{
+		t, err := uc.repo.CreateOrGet(Tag{
 			Name: x,
 		})
 		if err != nil {
 			return err
 		}
-		tagsData = append(tagsData, tag)
+		tagsData[i] = t
 	}
 
 	err2 := uc.repo.ClearTags(user.ID, blogId)
@@ -38,4 +42,28 @@ func (uc Usecase) EditBlogTags(user auth.User, blogId string, tags []string) err
 		}
 	}
 	return nil
+}
+
+func (uc Usecase) FindBlogs(tags []string) ([]blog.Blog, error) {
+	tagsData := map[string][]blog.Blog{}
+	var blogs []blog.Blog
+	for _, x := range tags {
+		if len(x) <= 0 || len(x) > 128 {
+			continue
+		}
+		blog, err := uc.repo.FindBlog(x)
+		if err != nil {
+			return nil, err
+		}
+		if len(blog) > 0 {
+			fmt.Println(blog)
+			tagsData[x] = append(tagsData[x], blog...)
+			blogs = append(blogs, blog...)
+		}
+	}
+	for i, j := range tagsData {
+		fmt.Println(i, len(j))
+	}
+	fmt.Println(len(blogs))
+	return nil, nil
 }

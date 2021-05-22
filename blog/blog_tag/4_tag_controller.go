@@ -1,6 +1,8 @@
 package blog_tag
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/ravielze/oculi/common/controller_utils"
 	module_manager "github.com/ravielze/oculi/common/module"
@@ -18,10 +20,15 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 		uc:  uc,
 		auc: module_manager.GetModule("auth").(auth.Module).Usecase(),
 	}
-	blog_tagGroup := g.Group("/blog/tags")
-	blog_tagGroup.Use(cont.auc.AuthenticationNeeded(), cont.auc.AllowedRole(auth.ROLE_ADMIN))
+
+	publicBlogTagGroup := g.Group("/blog/tags")
 	{
-		blog_tagGroup.POST("/:blogid", cont.EditBlogTags)
+		publicBlogTagGroup.GET("/", cont.FindBlogs)
+	}
+	blogTagGroup := g.Group("/blog/tags")
+	blogTagGroup.Use(cont.auc.AuthenticationNeeded(), cont.auc.AllowedRole(auth.ROLE_ADMIN))
+	{
+		blogTagGroup.POST("/:blogid", cont.EditBlogTags)
 	}
 	return cont
 }
@@ -37,5 +44,17 @@ func (cont Controller) EditBlogTags(ctx *gin.Context) {
 			return
 		}
 		utils.OKAndResponse(ctx)
+	}
+}
+
+func (cont Controller) FindBlogs(ctx *gin.Context) {
+	tags := ctx.QueryArray("tag")
+	ok := true
+	if len(tags) == 0 {
+		ok = false
+	}
+	if ok {
+		fmt.Println(len(tags), tags)
+		cont.uc.FindBlogs(tags)
 	}
 }

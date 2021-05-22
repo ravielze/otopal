@@ -77,8 +77,8 @@ func (repo Repository) GetBlog(title string, lastEdit time.Time) (Blog, error) {
 	var result Blog
 	if err := repo.db.
 		Preload("Author").
-		Where("LOWER(title) LIKE LOWER(?)", title).
-		Where("updated_at = ?", lastEdit).
+		Where("LOWER(title) = LOWER(?)", title).
+		Where("DATE(updated_at) = DATE(?)", lastEdit).
 		First(&result).Error; err != nil {
 		return Blog{}, err
 	}

@@ -28,7 +28,7 @@ func (repo Repository) AddTag(userId uint, blogId string, tag Tag) error {
 	if err2 := repo.db.
 		Model(&tag).
 		Omit("RelatedBlogs.*").
-		Association("Blog").
+		Association("RelatedBlogs").
 		Append(&blog); err2 != nil {
 		return err2
 	}
@@ -46,7 +46,7 @@ func (repo Repository) ClearTags(userId uint, blogId string) error {
 	}
 
 	if err2 := repo.db.Exec(
-		fmt.Sprintf("DELETE FROM %s WHERE blog_id = %s", Tag{}.RelatedBlogsTableName(), blog.ID),
+		fmt.Sprintf("DELETE FROM %s WHERE blog_id = '%s'", Tag{}.RelatedBlogsTableName(), blog.ID),
 	).Error; err2 != nil {
 		return err2
 	}
@@ -54,8 +54,22 @@ func (repo Repository) ClearTags(userId uint, blogId string) error {
 }
 
 func (repo Repository) CreateOrGet(tag Tag) (Tag, error) {
-	if err := repo.db.FirstOrCreate(&tag).Error; err != nil {
+	if err := repo.db.Where("name = ?", tag.Name).Attrs(Tag{Name: tag.Name}).FirstOrCreate(&tag).Error; err != nil {
 		return Tag{}, err
 	}
 	return tag, nil
+}
+
+func (repo Repository) FindBlog(tagName string) ([]blog.Blog, error) {
+	var result []blog.Blog
+	var tagRelated Tag
+	if err := repo.db.
+		Where("name = ?", tagName).
+		Preload("RelatedBlogs").
+		Find(&tagRelated).
+		Error; err != nil {
+		return nil, err
+	}
+	result = append(result, tagRelated.RelatedBlogs...)
+	return result, nil
 }
