@@ -2,7 +2,6 @@ package blog_tag
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ravielze/oculi/common/controller_utils"
@@ -58,7 +57,6 @@ func (cont Controller) FindBlogs(ctx *gin.Context) {
 		return
 	}
 	if ok {
-		fmt.Println(len(tags), tags)
 		rawResult, err := cont.uc.FindBlogs(tags)
 		if err != nil {
 			utils.AbortUsecaseError(ctx, err)

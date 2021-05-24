@@ -1,8 +1,6 @@
 package blog_tag
 
 import (
-	"fmt"
-
 	"github.com/ravielze/otopal/auth"
 	"github.com/ravielze/otopal/blog"
 )
@@ -58,7 +56,6 @@ func (uc Usecase) FindBlogs(tags []string) ([]blog.Blog, error) {
 			return nil, err
 		}
 		if len(blog) > 0 {
-			fmt.Println(blog)
 			tagsData[x] = append(tagsData[x], blog...)
 			blogs = append(blogs, blog...)
 		}
@@ -86,7 +83,5 @@ func (uc Usecase) FindBlogs(tags []string) ([]blog.Blog, error) {
 			result = append(result, countBlogMap[maxVal]...)
 		}
 	}
-	fmt.Println(blogCountMap)
-	fmt.Println(result)
 	return result, nil
 }
