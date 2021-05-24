@@ -39,6 +39,12 @@ func (item Blog) Convert() BlogResponse {
 	for i, x := range item.Thumbnails {
 		thumbnails[i] = x.Convert()
 	}
+	if len(thumbnails) == 0 {
+		thumbnails = append(thumbnails, filemanager.FileResponse{
+			ID:       "default",
+			FileType: "image/png",
+		})
+	}
 	return BlogResponse{
 		ID:         radix36.MustEncodeUUID(item.ID),
 		Title:      item.Title,

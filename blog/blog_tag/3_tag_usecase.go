@@ -44,6 +44,8 @@ func (uc Usecase) EditBlogTags(user auth.User, blogId string, tags []string) err
 	return nil
 }
 
+type B blog.Blog
+
 func (uc Usecase) FindBlogs(tags []string) ([]blog.Blog, error) {
 	tagsData := map[string][]blog.Blog{}
 	var blogs []blog.Blog
@@ -61,9 +63,30 @@ func (uc Usecase) FindBlogs(tags []string) ([]blog.Blog, error) {
 			blogs = append(blogs, blog...)
 		}
 	}
-	for i, j := range tagsData {
-		fmt.Println(i, len(j))
+
+	blogCountMap := map[string]uint{}
+	countBlogMap := map[uint][]blog.Blog{}
+	blogMap := map[string]blog.Blog{}
+	for _, blog := range blogs {
+		blogCountMap[blog.ID]++
+		blogMap[blog.ID] = blog
 	}
-	fmt.Println(len(blogs))
-	return nil, nil
+
+	var maxVal uint = 0
+	for k, v := range blogCountMap {
+		if v > maxVal {
+			maxVal = v
+		}
+		countBlogMap[v] = append(countBlogMap[v], blogMap[k])
+	}
+
+	var result []blog.Blog
+	for i := uint(1); i <= maxVal; i++ {
+		if len(countBlogMap[maxVal]) > 0 {
+			result = append(result, countBlogMap[maxVal]...)
+		}
+	}
+	fmt.Println(blogCountMap)
+	fmt.Println(result)
+	return result, nil
 }

@@ -66,6 +66,7 @@ func (repo Repository) FindBlog(tagName string) ([]blog.Blog, error) {
 	if err := repo.db.
 		Where("name = ?", tagName).
 		Preload("RelatedBlogs").
+		Preload("RelatedBlogs.Author").
 		Find(&tagRelated).
 		Error; err != nil {
 		return nil, err

@@ -1,6 +1,7 @@
 package blog_tag
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,7 @@ import (
 	module_manager "github.com/ravielze/oculi/common/module"
 	"github.com/ravielze/oculi/common/utils"
 	"github.com/ravielze/otopal/auth"
+	"github.com/ravielze/otopal/blog"
 )
 
 type Controller struct {
@@ -52,9 +54,20 @@ func (cont Controller) FindBlogs(ctx *gin.Context) {
 	ok := true
 	if len(tags) == 0 {
 		ok = false
+		utils.AbortUsecaseError(ctx, errors.New("parameter 'tag' is missing"))
+		return
 	}
 	if ok {
 		fmt.Println(len(tags), tags)
-		cont.uc.FindBlogs(tags)
+		rawResult, err := cont.uc.FindBlogs(tags)
+		if err != nil {
+			utils.AbortUsecaseError(ctx, err)
+			return
+		}
+		result := make([]blog.BlogResponse, len(rawResult))
+		for i, x := range rawResult {
+			result[i] = x.Convert()
+		}
+		utils.OKAndResponseData(ctx, result)
 	}
 }
