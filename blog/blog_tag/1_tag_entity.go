@@ -8,9 +8,9 @@ import (
 )
 
 type Tag struct {
-	common.BigIntIDBase
-	Name         string      `gorm:"type:VARCHAR(128);"`
-	RelatedBlogs []blog.Blog `gorm:"many2many:blogs_tags;constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT;"`
+	common.BigIntIDBase `gorm:"embedded;embeddedPrefix:tag_"`
+	Name                string      `gorm:"type:VARCHAR(128);"`
+	RelatedBlogs        []blog.Blog `gorm:"many2many:blogs_tags;constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT;"`
 }
 
 func (Tag) TableName() string {
