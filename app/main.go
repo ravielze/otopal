@@ -9,6 +9,7 @@ import (
 	"github.com/ravielze/otopal/auth"
 	"github.com/ravielze/otopal/blog"
 	"github.com/ravielze/otopal/blog/blog_tag"
+	"github.com/ravielze/otopal/blog/blog_view"
 	"github.com/ravielze/otopal/filemanager"
 	"gorm.io/gorm"
 )
@@ -24,6 +25,7 @@ func main() {
 		mm.AddModule(filemanager.NewModule(db, g))
 		mm.AddModule(blog.NewModule(db, g))
 		mm.AddModule(blog_tag.NewModule(db, g))
+		mm.AddModule(blog_view.NewModule(db, g))
 		// Add your module here
 	})
 }
