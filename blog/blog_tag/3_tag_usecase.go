@@ -1,6 +1,8 @@
 package blog_tag
 
 import (
+	"errors"
+
 	"github.com/ravielze/otopal/auth"
 	"github.com/ravielze/otopal/blog"
 )
@@ -82,6 +84,17 @@ func (uc Usecase) FindBlogs(tags []string) ([]blog.Blog, error) {
 		if len(countBlogMap[maxVal]) > 0 {
 			result = append(result, countBlogMap[maxVal]...)
 		}
+	}
+	return result, nil
+}
+
+func (uc Usecase) RandomTags(amount int) ([]Tag, error) {
+	if amount > 30 || amount <= 0 {
+		return nil, errors.New("amount is maxed at 30 and minimized at 0")
+	}
+	result, err := uc.repo.RandomTags(amount)
+	if err != nil {
+		return result, err
 	}
 	return result, nil
 }

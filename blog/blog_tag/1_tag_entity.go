@@ -24,14 +24,18 @@ func (Tag) RelatedBlogsTableName() string {
 type IController interface {
 	EditBlogTags(ctx *gin.Context)
 	FindBlogs(ctx *gin.Context)
+	RandomTags(ctx *gin.Context)
 }
 
 type IUsecase interface {
 	EditBlogTags(user auth.User, blogId string, tags []string) error
 	FindBlogs(tags []string) ([]blog.Blog, error)
+	RandomTags(amount int) ([]Tag, error)
 }
 
 type IRepo interface {
+	RandomTags(amount int) ([]Tag, error)
+
 	CreateOrGet(tag Tag) (Tag, error)
 
 	AddTag(userId uint, blogId string, tag Tag) error

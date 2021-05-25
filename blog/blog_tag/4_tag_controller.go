@@ -2,6 +2,7 @@ package blog_tag
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ravielze/oculi/common/controller_utils"
@@ -25,6 +26,7 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 	publicBlogTagGroup := g.Group("/blog/tags")
 	{
 		publicBlogTagGroup.GET("/", cont.FindBlogs)
+		publicBlogTagGroup.GET("/random", cont.RandomTags)
 	}
 	blogTagGroup := g.Group("/blog/tags")
 	blogTagGroup.Use(cont.auc.AuthenticationNeeded(), cont.auc.AllowedRole(auth.ROLE_ADMIN))
@@ -65,6 +67,29 @@ func (cont Controller) FindBlogs(ctx *gin.Context) {
 		result := make([]blog.BlogResponse, len(rawResult))
 		for i, x := range rawResult {
 			result[i] = x.Convert()
+		}
+		utils.OKAndResponseData(ctx, result)
+	}
+}
+
+func (cont Controller) RandomTags(ctx *gin.Context) {
+	ok, _, queries := controller_utils.NewControlChain(ctx).Query("amount", "6").End()
+	if ok {
+		amt, err := strconv.Atoi(queries["amount"])
+		if err != nil {
+			utils.AbortUsecaseError(ctx, err)
+			return
+		}
+
+		rawResult, err2 := cont.uc.RandomTags(amt)
+		if err2 != nil {
+			utils.AbortUsecaseError(ctx, err2)
+			return
+		}
+
+		result := make([]string, len(rawResult))
+		for i, x := range rawResult {
+			result[i] = x.Name
 		}
 		utils.OKAndResponseData(ctx, result)
 	}

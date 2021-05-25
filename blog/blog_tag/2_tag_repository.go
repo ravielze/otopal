@@ -2,6 +2,7 @@ package blog_tag
 
 import (
 	"fmt"
+	"math/rand"
 
 	"github.com/ravielze/otopal/blog"
 	"gorm.io/gorm"
@@ -72,5 +73,27 @@ func (repo Repository) FindBlog(tagName string) ([]blog.Blog, error) {
 		return nil, err
 	}
 	result = append(result, tagRelated.RelatedBlogs...)
+	return result, nil
+}
+
+func (repo Repository) RandomTags(amount int) ([]Tag, error) {
+	var all []Tag
+	if err := repo.db.Find(&all).Error; err != nil {
+		return nil, err
+	}
+	if len(all) == 0 {
+		return all, nil
+	}
+
+	var result []Tag
+	if amount >= len(all) {
+		result = append(result, all...)
+	} else {
+		rand.Shuffle(len(all), func(i, j int) {
+			all[i], all[j] = all[j], all[i]
+		})
+		result = append(result, all[:amount]...)
+	}
+
 	return result, nil
 }
