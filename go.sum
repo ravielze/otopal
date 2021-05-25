@@ -336,10 +336,10 @@ github.com/prometheus/procfs v0.0.2/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsT
 github.com/prometheus/procfs v0.0.8/go.mod h1:7Qr8sr6344vo1JqZ6HhLceV9o3AJ1Ff+GxbHq6oeK9A=
 github.com/ramadani/go-filestorage v0.0.0-20181209121202-7256972fe37b h1:fvB+83ZxKdqfP15VvB1wm7UjKZGlqxuoVamYDvLcuTM=
 github.com/ramadani/go-filestorage v0.0.0-20181209121202-7256972fe37b/go.mod h1:Uw2fo42qxc3I3bHHMrD0G2zuCRyT8AcJGp1L1KYXal0=
-github.com/ravielze/oculi v1.2.2 h1:D5ImVDy1LuC6K/ODSXA6TiyWYefRRblA+4LEUv+/O1I=
-github.com/ravielze/oculi v1.2.2/go.mod h1:rltZvFVG5GCmu7oImvF0W4QcuijB37k05VhiiVQZKqo=
-github.com/ravielze/oculi v1.2.3 h1:1G2KBejam2bzUI69sx0NaNlNQa29H+s+8iQgubulQ0E=
-github.com/ravielze/oculi v1.2.3/go.mod h1:rltZvFVG5GCmu7oImvF0W4QcuijB37k05VhiiVQZKqo=
+github.com/ravielze/oculi v1.2.4 h1:/UI6qf0wwI4QooyPyrUm/vKGE2H+YsBtZOsgybeeGdE=
+github.com/ravielze/oculi v1.2.4/go.mod h1:rltZvFVG5GCmu7oImvF0W4QcuijB37k05VhiiVQZKqo=
+github.com/ravielze/oculi v1.2.5-0.20210525162146-929fe00e37a4 h1:Gu0zMuGUJnHX3eGcoJVRC0aUc7BUhMGsZGdzvbfgCaU=
+github.com/ravielze/oculi v1.2.5-0.20210525162146-929fe00e37a4/go.mod h1:rltZvFVG5GCmu7oImvF0W4QcuijB37k05VhiiVQZKqo=
 github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
@@ -480,6 +480,8 @@ golang.org/x/sys v0.0.0-20210423082822-04245dca01da/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20210514084401-e8d321eab015/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20210521203332-0cec03c779c1 h1:lCnv+lfrU9FRPGf8NeRuWAAPjNnema5WtBinMgs1fD8=
 golang.org/x/sys v0.0.0-20210521203332-0cec03c779c1/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea h1:+WiDlPBBaO+h9vPNZi8uJ3k4BkKQB7Iow3aqwHVA5hI=
+golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.2/go.mod h1:bEr9sfX3Q8Zfm5fL9x+3itogRgK3+ptLWKqgva+5dAk=

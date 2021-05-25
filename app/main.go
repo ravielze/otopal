@@ -20,9 +20,7 @@ import (
 )
 
 func main() {
-	allowedAddress := []string{"http://localhost:5500"}
 	oculi.New("Otopal", func(db *gorm.DB, g *gin.Engine) {
-		middleware.InstallCors(g, allowedAddress)
 		middleware.InstallDefaultLimiter(g)
 		// Add your middleware here
 	}, func(db *gorm.DB, g *gin.Engine) {
@@ -35,7 +33,7 @@ func main() {
 	}, func(db *gorm.DB, g *gin.Engine) {
 		chatServer := chat.NewChatServer()
 		signal.Notify(chatServer.Running, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-		go chatServer.Run(g, allowedAddress)
+		go chatServer.Run(g, nil)
 		go g.Run()
 		<-chatServer.Running
 		os.Exit(0)
