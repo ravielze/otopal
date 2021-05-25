@@ -25,6 +25,10 @@ func (Blog) TableName() string {
 	return "blog"
 }
 
+func (Blog) ThumbnailsTableName() string {
+	return "blog_thumbnails"
+}
+
 type IController interface {
 	GetBlogs(ctx *gin.Context)
 	GetUserBlogs(ctx *gin.Context)

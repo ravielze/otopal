@@ -9,17 +9,20 @@ import (
 	module_manager "github.com/ravielze/oculi/common/module"
 	"github.com/ravielze/oculi/common/utils"
 	"github.com/ravielze/otopal/auth"
+	"github.com/ravielze/otopal/blog/blog_connector"
 )
 
 type Controller struct {
-	uc  IUsecase
-	auc auth.IUsecase
+	uc   IUsecase
+	auc  auth.IUsecase
+	bvuc blog_connector.BlogViewUsecase
 }
 
 func NewController(g *gin.Engine, uc IUsecase) IController {
 	cont := Controller{
-		uc:  uc,
-		auc: module_manager.GetModule("auth").(auth.Module).Usecase(),
+		uc:   uc,
+		auc:  module_manager.GetModule("auth").(auth.Module).Usecase(),
+		bvuc: blog_connector.BVU,
 	}
 	blogGroup := g.Group("/blog")
 	{
@@ -96,6 +99,11 @@ func (cont Controller) GetBlog(ctx *gin.Context) {
 		result, err := cont.uc.GetBlog(params["slug"], params["date"])
 		if err != nil {
 			utils.AbortUsecaseError(ctx, err)
+			return
+		}
+		verr := cont.bvuc.AddView(result.ID, ctx.ClientIP())
+		if verr != nil {
+			utils.AbortUsecaseError(ctx, verr)
 			return
 		}
 		utils.OKAndResponseData(ctx, result.Convert())

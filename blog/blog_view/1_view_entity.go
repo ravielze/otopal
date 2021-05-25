@@ -3,6 +3,7 @@ package blog_view
 import (
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/ravielze/oculi/common"
 	"github.com/ravielze/otopal/blog"
 )
@@ -27,11 +28,12 @@ func (View) TableName() string {
 }
 
 type IController interface {
+	Top(ctx *gin.Context)
 }
 
 type IUsecase interface {
 	AddView(blogId string, clientIp string) error
-	Top(top int) ([]View, error)
+	Top(top int) ([]BlogView, error)
 }
 
 type IRepo interface {
