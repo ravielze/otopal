@@ -67,7 +67,6 @@ func (cont Controller) Update(ctx *gin.Context) {
 	}
 }
 
-
-func (cont Controller) GetTechnicians(ctx *gin.Context){
-    panic("not implemented")
+func (cont Controller) GetTechnicians(ctx *gin.Context) {
+	panic("not implemented")
 }

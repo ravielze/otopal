@@ -2,7 +2,6 @@ package chat
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -25,27 +24,8 @@ func NewChatServer() *ChatServer {
 	}
 }
 
-func ginMiddleware(allowOrigin string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, Content-Length, X-CSRF-Token, Token, session, Origin, Host, Connection, Accept-Encoding, Accept-Language, X-Requested-With")
-
-		if c.Request.Method == http.MethodOptions {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-
-		c.Request.Header.Del("Origin")
-
-		c.Next()
-	}
-}
-
 func (cs *ChatServer) Run(g *gin.Engine, allowedAddress []string) {
 	socketGroup := g.Group("/socket.io")
-	socketGroup.Use(ginMiddleware(allowedAddress[0]))
 	socketGroup.GET("/*any", gin.WrapH(cs.server))
 	socketGroup.POST("/*any", gin.WrapH(cs.server))
 	go func() {
@@ -71,7 +51,7 @@ func eventHandler(server *socketio.Server) {
 		s.Emit("reply", "have "+msg)
 	})
 
-	server.OnEvent("/chat", "msg", func(s socketio.Conn, msg string) string {
+	server.OnEvent("/", "msg", func(s socketio.Conn, msg string) string {
 		s.SetContext(msg)
 		fmt.Println(msg)
 		return "recv " + msg
@@ -84,7 +64,7 @@ func eventHandler(server *socketio.Server) {
 		return last
 	})
 	server.OnEvent("/", "gotoChat", func(s socketio.Conn) {
-		s.Join("/chat")
+		s.SetContext("/chat")
 	})
 
 	server.OnError("/", func(s socketio.Conn, e error) {

@@ -35,25 +35,22 @@ func (repo Repository) GetLast(blogId string, clientIp string) (View, error) {
 
 func (repo Repository) Top(top int) ([]BlogView, error) {
 	var result []BlogView
-	size := repo.db.Find(&[]BlogView{}).RowsAffected
-	if size > int64(top) {
-		query := fmt.Sprintf(
-			`SELECT T.id as blog_id,count 
+	query := fmt.Sprintf(
+		`SELECT T.id as blog_id,count 
 FROM (SELECT blog_id as id, count(blog_id) AS count FROM "view" GROUP BY "blog_id" LIMIT %d) T
 ORDER BY count desc`, top)
-		if err := repo.db.Raw(query).Scan(&result).Error; err != nil {
+	if err := repo.db.Raw(query).Scan(&result).Error; err != nil {
+		return nil, err
+	}
+	for i := range result {
+		var blog blog.Blog
+		if err := repo.db.
+			Preload(clause.Associations).
+			Find(&blog, "id = ?", result[i].Blog.ID).
+			Error; err != nil {
 			return nil, err
 		}
-		for i := range result {
-			var blog blog.Blog
-			if err := repo.db.
-				Preload(clause.Associations).
-				Find(&blog, "id = ?", result[i].Blog.ID).
-				Error; err != nil {
-				return nil, err
-			}
-			result[i].Blog = blog
-		}
+		result[i].Blog = blog
 	}
 	return result, nil
 }
