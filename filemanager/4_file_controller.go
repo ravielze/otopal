@@ -1,6 +1,10 @@
 package filemanager
 
 import (
+	"net/http"
+
+	common_code "github.com/ravielze/oculi/common/code"
+
 	"github.com/gin-gonic/gin"
 	cutils "github.com/ravielze/oculi/common/controller_utils"
 	"github.com/ravielze/oculi/common/utils"
@@ -34,7 +38,6 @@ func (cont Controller) GetFile(ctx *gin.Context) {
 		if queries["download"] == "true" {
 			download = true
 		}
-		utils.OKAndResponse(ctx)
 		ctx.Header("Content-Description", "File Transfer")
 		ctx.Header("Content-Transfer-Encoding", "binary")
 		if download {
@@ -43,9 +46,10 @@ func (cont Controller) GetFile(ctx *gin.Context) {
 			ctx.Header("Content-Disposition", "inline; filename="+result.RealFilename)
 		}
 		ctx.Header("Content-Type", result.FileType)
-		ctx.File("./storage/" + result.Path)
+		ctx.File("./" + result.Path)
 		return
 	}
+	utils.AbortAndResponseData(ctx, http.StatusBadRequest, common_code.UNKNOWN, "An unknown error has occured")
 }
 
 func (cont Controller) GetFilesByGroup(ctx *gin.Context) {
