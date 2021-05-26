@@ -342,6 +342,8 @@ github.com/ravielze/oculi v1.2.5-0.20210525162146-929fe00e37a4 h1:Gu0zMuGUJnHX3e
 github.com/ravielze/oculi v1.2.5-0.20210525162146-929fe00e37a4/go.mod h1:rltZvFVG5GCmu7oImvF0W4QcuijB37k05VhiiVQZKqo=
 github.com/ravielze/oculi v1.2.5 h1:pYBmuYjIeAloOHP+F2FjZ44WS1wuUXG12dpEgmXTEcA=
 github.com/ravielze/oculi v1.2.5/go.mod h1:rltZvFVG5GCmu7oImvF0W4QcuijB37k05VhiiVQZKqo=
+github.com/ravielze/oculi v1.2.6 h1:gD2AC/qKfEhuVeXU+7yJzBtsteZ/3aZfBywFewvuVwA=
+github.com/ravielze/oculi v1.2.6/go.mod h1:rltZvFVG5GCmu7oImvF0W4QcuijB37k05VhiiVQZKqo=
 github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
