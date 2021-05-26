@@ -4,22 +4,27 @@ import (
 	"github.com/gin-gonic/gin"
 	cutils "github.com/ravielze/oculi/common/controller_utils"
 	"github.com/ravielze/oculi/common/utils"
+	"github.com/ravielze/otopal/chat/chat_connector"
 )
 
 type Controller struct {
 	uc IUsecase
+	cc chat_connector.ChatAuthUsecase
 }
 
 func NewController(g *gin.Engine, uc IUsecase) IController {
 	cont := Controller{
 		uc: uc,
+		cc: chat_connector.CAU,
 	}
 	authGroup := g.Group("/auth")
 	{
 		authGroup.POST("/login", cont.Login)
 		authGroup.POST("/register", cont.Register)
 		authGroup.GET("/", uc.AuthenticationNeeded(), cont.Check)
+		authGroup.PUT("/profile", uc.AuthenticationNeeded(), cont.Update)
 	}
+	g.GET("/technicians", uc.AuthenticationNeeded(), cont.GetTechnicians)
 	return cont
 }
 
@@ -68,5 +73,21 @@ func (cont Controller) Update(ctx *gin.Context) {
 }
 
 func (cont Controller) GetTechnicians(ctx *gin.Context) {
-	panic("not implemented")
+	technicians, err := cont.uc.GetTechnicians()
+	if err != nil {
+		utils.AbortUsecaseError(ctx, err)
+		return
+	}
+	type Technician struct {
+		User     UserResponse `json:"user"`
+		IsOnline bool         `json:"online"`
+	}
+	result := make([]Technician, len(technicians))
+	for i := range technicians {
+		result[i] = Technician{
+			User:     technicians[i].Convert(),
+			IsOnline: cont.cc.IsOnline(technicians[i].ID),
+		}
+	}
+	utils.OKAndResponseData(ctx, result)
 }
