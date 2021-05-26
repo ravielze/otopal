@@ -3,16 +3,21 @@ package blog_tag
 import (
 	"errors"
 
+	module_manager "github.com/ravielze/oculi/common/module"
 	"github.com/ravielze/otopal/auth"
 	"github.com/ravielze/otopal/blog"
 )
 
 type Usecase struct {
 	repo IRepo
+	buc  blog.IUsecase
 }
 
 func NewUsecase(repo IRepo) IUsecase {
-	return Usecase{repo: repo}
+	return Usecase{
+		repo: repo,
+		buc:  module_manager.GetModule("blog").(blog.Module).Usecase(),
+	}
 }
 
 func (uc Usecase) EditBlogTags(user auth.User, blogId string, tags []string) error {
@@ -95,6 +100,23 @@ func (uc Usecase) RandomTags(amount int) ([]Tag, error) {
 	result, err := uc.repo.RandomTags(amount)
 	if err != nil {
 		return result, err
+	}
+	return result, nil
+}
+
+func (uc Usecase) FindTag(title string, lastEdit string) ([]string, error) {
+	blog, err := uc.buc.GetBlog(title, lastEdit)
+	if err != nil {
+		return nil, err
+	}
+
+	tags, err2 := uc.repo.FindTag(blog.ID)
+	if err2 != nil {
+		return nil, err2
+	}
+	result := make([]string, len(tags))
+	for i, t := range tags {
+		result[i] = t.Name
 	}
 	return result, nil
 }

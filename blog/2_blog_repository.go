@@ -113,3 +113,15 @@ func (repo Repository) GetUserBlogs(userId uint, page uint) ([]Blog, error) {
 	}
 	return result, nil
 }
+
+func (repo Repository) Edit(blog Blog) (Blog, error) {
+	if err := repo.db.Model(&Blog{}).
+		Preload("Author").
+		Where("author_id = ?", blog.AuthorID).
+		Where("blog_id = ?", blog.ID).
+		Omit("Thumbnails").
+		Updates(blog).Error; err != nil {
+		return Blog{}, err
+	}
+	return blog, nil
+}

@@ -35,6 +35,7 @@ type IController interface {
 	GetBlog(ctx *gin.Context)
 
 	Create(ctx *gin.Context)
+	Edit(ctx *gin.Context)
 	AddThumbnail(ctx *gin.Context)
 	RemoveThumbnail(ctx *gin.Context)
 	Delete(ctx *gin.Context)
@@ -42,6 +43,7 @@ type IController interface {
 
 type IUsecase interface {
 	Create(user auth.User, item BlogRequest) (Blog, error)
+	Edit(user auth.User, title string, lastEdit string, item BlogRequest) (Blog, error)
 
 	GetBlogs(page uint) ([]Blog, error)
 	GetUserBlogs(user auth.User, page uint) ([]Blog, error)
@@ -55,6 +57,7 @@ type IUsecase interface {
 
 type IRepo interface {
 	Create(blog Blog) (Blog, error)
+	Edit(blog Blog) (Blog, error)
 
 	GetBlogs(page uint) ([]Blog, error)
 	GetUserBlogs(userId uint, page uint) ([]Blog, error)

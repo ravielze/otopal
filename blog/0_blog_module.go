@@ -19,6 +19,10 @@ func (Module) Reset(db *gorm.DB) {
 	db.Migrator().DropTable(&Blog{})
 }
 
+func (m Module) Usecase() IUsecase {
+	return m.usecase
+}
+
 func NewModule(db *gorm.DB, g *gin.Engine) Module {
 	repo := NewRepository(db)
 	uc := NewUsecase(repo)

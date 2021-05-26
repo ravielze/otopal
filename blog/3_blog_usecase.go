@@ -87,3 +87,13 @@ func (uc Usecase) Create(user auth.User, item BlogRequest) (Blog, error) {
 	}
 	return uc.repo.Create(item.Convert(user.ID))
 }
+
+func (uc Usecase) Edit(user auth.User, title string, lastEdit string, item BlogRequest) (Blog, error) {
+	oldBlog, err := uc.GetBlog(title, lastEdit)
+	if err != nil {
+		return Blog{}, err
+	}
+	blog := item.Convert(user.ID)
+	blog.ID = oldBlog.ID
+	return uc.repo.Edit(blog)
+}

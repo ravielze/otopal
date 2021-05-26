@@ -37,6 +37,7 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 		adminBlogGroup.DELETE("/delete/:blogid", cont.Delete)
 		adminBlogGroup.POST("/thumbnail/:blogid", cont.AddThumbnail)
 		adminBlogGroup.DELETE("/thumbnail/:blogid/:fileid", cont.RemoveThumbnail)
+		blogGroup.PUT("/info/:date/:slug", cont.Edit)
 	}
 	return cont
 }
@@ -177,5 +178,24 @@ func (cont Controller) RemoveThumbnail(ctx *gin.Context) {
 			return
 		}
 		utils.OKAndResponse(ctx)
+	}
+}
+
+func (cont Controller) Edit(ctx *gin.Context) {
+	var obj BlogRequest
+	ok, params, _ := cutils.
+		NewControlChain(ctx).
+		Param("date").
+		Param("slug").
+		BindJSON(&obj).
+		End()
+	if ok {
+		user := cont.auc.GetUser(ctx)
+		result, err := cont.uc.Edit(user, params["slug"], params["date"], obj)
+		if err != nil {
+			utils.AbortUsecaseError(ctx, err)
+			return
+		}
+		utils.OKAndResponseData(ctx, result.Convert())
 	}
 }

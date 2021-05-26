@@ -27,6 +27,7 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 	{
 		publicBlogTagGroup.GET("/", cont.FindBlogs)
 		publicBlogTagGroup.GET("/random", cont.RandomTags)
+		publicBlogTagGroup.GET("/info/:date/:slug", cont.FindTag)
 	}
 	blogTagGroup := g.Group("/blog/tags")
 	blogTagGroup.Use(cont.auc.AuthenticationNeeded(), cont.auc.AllowedRole(auth.ROLE_ADMIN))
@@ -90,6 +91,22 @@ func (cont Controller) RandomTags(ctx *gin.Context) {
 		result := make([]string, len(rawResult))
 		for i, x := range rawResult {
 			result[i] = x.Name
+		}
+		utils.OKAndResponseData(ctx, result)
+	}
+}
+
+func (cont Controller) FindTag(ctx *gin.Context) {
+	ok, params, _ := controller_utils.
+		NewControlChain(ctx).
+		Param("date").
+		Param("slug").
+		End()
+	if ok {
+		result, err := cont.uc.FindTag(params["slug"], params["date"])
+		if err != nil {
+			utils.AbortUsecaseError(ctx, err)
+			return
 		}
 		utils.OKAndResponseData(ctx, result)
 	}

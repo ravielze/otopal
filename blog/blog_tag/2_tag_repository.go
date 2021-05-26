@@ -97,3 +97,24 @@ func (repo Repository) RandomTags(amount int) ([]Tag, error) {
 
 	return result, nil
 }
+
+func (repo Repository) FindTag(blogId string) ([]Tag, error) {
+	var tagIds []uint64
+	if err := repo.db.
+		Table(Tag{}.RelatedBlogsTableName()).
+		Where("blog_id = ?", blogId).
+		Find(&tagIds).
+		Error; err != nil {
+		return nil, err
+	}
+	var result []Tag
+	if err := repo.db.
+		Model(&Tag{}).
+		Where("tag_id IN ?", tagIds).
+		Order("name ASC").
+		Find(&result).
+		Error; err != nil {
+		return nil, err
+	}
+	return result, nil
+}

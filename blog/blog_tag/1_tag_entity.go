@@ -25,12 +25,14 @@ type IController interface {
 	EditBlogTags(ctx *gin.Context)
 	FindBlogs(ctx *gin.Context)
 	RandomTags(ctx *gin.Context)
+	FindTag(ctx *gin.Context)
 }
 
 type IUsecase interface {
 	EditBlogTags(user auth.User, blogId string, tags []string) error
 	FindBlogs(tags []string) ([]blog.Blog, error)
 	RandomTags(amount int) ([]Tag, error)
+	FindTag(title string, lastEdit string) ([]string, error)
 }
 
 type IRepo interface {
@@ -42,4 +44,5 @@ type IRepo interface {
 	ClearTags(userId uint, blogId string) error
 
 	FindBlog(tagName string) ([]blog.Blog, error)
+	FindTag(blogId string) ([]Tag, error)
 }
