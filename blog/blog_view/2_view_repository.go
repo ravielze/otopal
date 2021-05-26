@@ -46,7 +46,7 @@ ORDER BY count desc`, top)
 		var blog blog.Blog
 		if err := repo.db.
 			Preload(clause.Associations).
-			Find(&blog, "id = ?", result[i].Blog.ID).
+			Find(&blog, "blog_id = ?", result[i].Blog.ID).
 			Error; err != nil {
 			return nil, err
 		}
