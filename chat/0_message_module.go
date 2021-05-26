@@ -2,6 +2,7 @@ package chat
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/ravielze/otopal/chat/chat_connector"
 	"gorm.io/gorm"
 )
 
@@ -25,6 +26,8 @@ func NewModule(db *gorm.DB, g *gin.Engine) Module {
 	cont := NewController(g, uc)
 
 	db.AutoMigrate(&Message{})
+
+	chat_connector.CAU = uc
 
 	return Module{
 		controller: cont,

@@ -30,10 +30,20 @@ func (uc Usecase) SendMessage(userId uint, receiverId uint, message string) (Mes
 	})
 }
 
-func (uc Usecase) Login(userId uint) ([]Message, error) {
-	panic("not implemented")
+func (uc Usecase) Login(userId uint, socketId string) error {
+	uc.repo.Online(userId, socketId)
+	return nil
 }
 
-func (uc Usecase) Logout(userId uint) error {
-	panic("not implemented")
+func (uc Usecase) Logout(userId uint, socketId string) error {
+	uc.repo.Offline(userId, socketId)
+	return nil
+}
+
+func (uc Usecase) IsOnline(userId uint) bool {
+	return uc.repo.IsLoggedIn(userId)
+}
+
+func (uc Usecase) GetMessage(userId uint, user2Id uint) ([]Message, error) {
+	return uc.repo.GetMessage(userId, user2Id)
 }

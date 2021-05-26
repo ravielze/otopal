@@ -9,7 +9,7 @@ import (
 type OnlineData struct {
 	sync.RWMutex
 	// User ID -> Socket Connection ID
-	userOnline *map[uint]string
+	userOnline *map[uint][]string
 }
 
 type Repository struct {
@@ -21,7 +21,7 @@ func NewRepository(db *gorm.DB) IRepo {
 	return &Repository{
 		db: db,
 		od: OnlineData{
-			userOnline: &map[uint]string{},
+			userOnline: &map[uint][]string{},
 		},
 	}
 }
@@ -40,19 +40,30 @@ func (repo *Repository) CreateMessage(msg Message) (Message, error) {
 func (repo *Repository) IsLoggedIn(userId uint) bool {
 	repo.od.Lock()
 	defer repo.od.Unlock()
-	return (*repo.od.userOnline)[userId] != ""
+	return len((*repo.od.userOnline)[userId]) != 0
 }
 
-func (repo *Repository) Offline(userId uint) {
+func (repo *Repository) Offline(userId uint, socketId string) {
 	repo.od.Lock()
 	defer repo.od.Unlock()
-	delete(*repo.od.userOnline, userId)
+	length := len((*repo.od.userOnline)[userId])
+	if length == 1 {
+		delete(*repo.od.userOnline, userId)
+	} else {
+		newArr := make([]string, length-1)
+		for _, i := range (*repo.od.userOnline)[userId] {
+			if i != socketId {
+				newArr = append(newArr, i)
+			}
+		}
+		(*repo.od.userOnline)[userId] = newArr
+	}
 }
 
 func (repo *Repository) Online(userId uint, socketId string) {
 	repo.od.Lock()
 	defer repo.od.Unlock()
-	(*repo.od.userOnline)[userId] = socketId
+	(*repo.od.userOnline)[userId] = append((*repo.od.userOnline)[userId], socketId)
 }
 
 func (repo *Repository) ReadAll(userId uint, senderId uint) error {

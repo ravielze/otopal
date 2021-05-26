@@ -1,9 +1,8 @@
 package chat
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
+	socketio "github.com/googollee/go-socket.io"
 )
 
 type Controller struct {
@@ -14,11 +13,25 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 	cont := Controller{
 		uc: uc,
 	}
-	chatGroup := g.Group("/chat")
-	{
-		chatGroup.GET("/", func(ctx *gin.Context) {
-			fmt.Println("Module chat.")
-		})
-	}
 	return cont
+}
+
+func (cont Controller) OnConnect(s socketio.Conn) error {
+	panic("not implemented")
+}
+
+func (cont Controller) OnDisconnect(s socketio.Conn) error {
+	panic("not implemented")
+}
+
+func (cont Controller) OnReadMessage(s socketio.Conn, msg string) string {
+	panic("not implemented")
+}
+
+func (cont Controller) OnRetrieveMessage(s socketio.Conn, msg string) string {
+	panic("not implemented")
+}
+
+func (cont Controller) OnSendMessage(s socketio.Conn, msg string) string {
+	panic("not implemented")
 }
