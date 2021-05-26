@@ -46,6 +46,7 @@ type IController interface {
 
 type IUsecase interface {
 	GetFile(idFile string) (FileResponse, error)
+	GetRawFile(idFile string) (File, error)
 	GetFilesByGroup(fileGroup string) ([]FileResponse, error)
 	AddFile(user auth.User, fileGroup string, item common.FileAttachment) (FileResponse, error)
 	DeleteFile(idFile string) error

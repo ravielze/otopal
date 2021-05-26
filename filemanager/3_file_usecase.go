@@ -33,6 +33,10 @@ func (uc Usecase) GetFile(idFile string) (FileResponse, error) {
 	return result.Convert(), nil
 }
 
+func (uc Usecase) GetRawFile(idFile string) (File, error) {
+	return uc.repo.GetFile(idFile)
+}
+
 func (uc Usecase) GetFilesByGroup(fileGroup string) ([]FileResponse, error) {
 	rawResult, err := uc.repo.GetFilesByGroup(fileGroup)
 	if err != nil {
