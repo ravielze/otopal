@@ -7,6 +7,7 @@ import (
 
 	"github.com/ravielze/oculi/common"
 	module_manager "github.com/ravielze/oculi/common/module"
+	"github.com/ravielze/oculi/common/radix36"
 	"github.com/ravielze/otopal/auth"
 	"github.com/ravielze/otopal/filemanager"
 )
@@ -34,7 +35,7 @@ func (uc Usecase) AddThumbnail(user auth.User, blogId string, item common.FileAt
 			ID: blogId,
 		},
 		AuthorID: user.ID,
-	}, fileResp.ID)
+	}, radix36.DecodeUUID(fileResp.ID).String())
 	return err2
 }
 
@@ -44,7 +45,7 @@ func (uc Usecase) RemoveThumbnail(user auth.User, blogId string, fileId string) 
 			ID: blogId,
 		},
 		AuthorID: user.ID,
-	}, fileId)
+	}, radix36.DecodeUUID(fileId).String())
 
 	if err != nil {
 		return err
