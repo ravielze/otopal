@@ -16,6 +16,7 @@ import (
 	"github.com/ravielze/otopal/blog/blog_view"
 	"github.com/ravielze/otopal/chat"
 	"github.com/ravielze/otopal/filemanager"
+	"github.com/ravielze/otopal/reminder"
 	"gorm.io/gorm"
 )
 
@@ -27,6 +28,7 @@ func main() {
 		mm.AddModule(essentials.NewModule(db, g))
 		mm.AddModule(auth.NewModule(db, g))
 		mm.AddModule(filemanager.NewModule(db, g))
+		mm.AddModule(reminder.NewModule(db, g))
 		mm.AddModule(blog.NewModule(db, g))
 		mm.AddModule(blog_tag.NewModule(db, g))
 		mm.AddModule(blog_view.NewModule(db, g))
