@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/gin-gonic/gin"
 	cutils "github.com/ravielze/oculi/common/controller_utils"
+	"github.com/ravielze/oculi/common/middleware"
 	"github.com/ravielze/oculi/common/utils"
 	"github.com/ravielze/otopal/chat/chat_connector"
 )
@@ -23,6 +24,7 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 		authGroup.POST("/register", cont.Register)
 		authGroup.GET("/", uc.AuthenticationNeeded(), cont.Check)
 		authGroup.PUT("/profile", uc.AuthenticationNeeded(), cont.Update)
+		authGroup.POST("/registeradmin", middleware.GetStaticTokenMiddleware(), cont.RegisterAdmin)
 	}
 	g.GET("/technicians", uc.AuthenticationNeeded(), cont.GetTechnicians)
 	return cont
@@ -50,6 +52,19 @@ func (cont Controller) Register(ctx *gin.Context) {
 	ok, _, _ := cutils.NewControlChain(ctx).BindJSON(&obj).End()
 	if ok {
 		result, err := cont.uc.Register(obj)
+		if err != nil {
+			utils.AbortUsecaseError(ctx, err)
+			return
+		}
+		utils.OKAndResponseData(ctx, result)
+	}
+}
+
+func (cont Controller) RegisterAdmin(ctx *gin.Context) {
+	var obj RegisterRequest
+	ok, _, _ := cutils.NewControlChain(ctx).BindJSON(&obj).End()
+	if ok {
+		result, err := cont.uc.RegisterAdmin(obj)
 		if err != nil {
 			utils.AbortUsecaseError(ctx, err)
 			return

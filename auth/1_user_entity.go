@@ -36,6 +36,7 @@ func (u *User) BeforeSave(db *gorm.DB) error {
 
 type IController interface {
 	Register(ctx *gin.Context)
+	RegisterAdmin(ctx *gin.Context)
 	Login(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Check(ctx *gin.Context)
