@@ -29,6 +29,8 @@ type IController interface {
 	OnRetrieveMessage(s socketio.Conn, msg string) string
 	OnSendMessage(s socketio.Conn, msg string) string
 	OnReadMessage(s socketio.Conn, msg string) string
+	OnLogin(s socketio.Conn, msg string) string
+	OnLogout(s socketio.Conn, msg string) string
 }
 
 type IUsecase interface {
@@ -41,9 +43,12 @@ type IUsecase interface {
 	GetMessage(userId uint, user2Id uint) ([]Message, error)
 
 	IsOnline(userId uint) bool
+
+	GetUserID(socketId string) (uint, error)
 }
 
 type IRepo interface {
+	GetUserID(socketId string) (uint, error)
 	IsLoggedIn(userId uint) bool
 	Online(userId uint, socketId string)
 	Offline(userId uint, socketId string)

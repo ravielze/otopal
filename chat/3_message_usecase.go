@@ -47,3 +47,7 @@ func (uc Usecase) IsOnline(userId uint) bool {
 func (uc Usecase) GetMessage(userId uint, user2Id uint) ([]Message, error) {
 	return uc.repo.GetMessage(userId, user2Id)
 }
+
+func (uc Usecase) GetUserID(socketId string) (uint, error) {
+	return uc.repo.GetUserID(socketId)
+}

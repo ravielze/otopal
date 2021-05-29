@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"errors"
 	"sync"
 
 	"gorm.io/gorm"
@@ -9,7 +10,8 @@ import (
 type OnlineData struct {
 	sync.RWMutex
 	// User ID -> Socket Connection ID
-	userOnline *map[uint][]string
+	userOnline   *map[uint][]string
+	socketOnline *map[string]uint
 }
 
 type Repository struct {
@@ -21,7 +23,8 @@ func NewRepository(db *gorm.DB) IRepo {
 	return &Repository{
 		db: db,
 		od: OnlineData{
-			userOnline: &map[uint][]string{},
+			userOnline:   &map[uint][]string{},
+			socketOnline: &map[string]uint{},
 		},
 	}
 }
@@ -35,6 +38,14 @@ func (repo *Repository) CreateMessage(msg Message) (Message, error) {
 	}
 	repo.db.Model(&msg).Preload("User").Preload("Receiver").First(&msg)
 	return msg, nil
+}
+
+func (repo *Repository) GetUserID(socketId string) (uint, error) {
+	if uid := (*repo.od.socketOnline)[socketId]; uid == 0 {
+		return 0, errors.New("the user has not logged in")
+	} else {
+		return uid, nil
+	}
 }
 
 func (repo *Repository) IsLoggedIn(userId uint) bool {
@@ -58,12 +69,14 @@ func (repo *Repository) Offline(userId uint, socketId string) {
 		}
 		(*repo.od.userOnline)[userId] = newArr
 	}
+	delete(*repo.od.socketOnline, socketId)
 }
 
 func (repo *Repository) Online(userId uint, socketId string) {
 	repo.od.Lock()
 	defer repo.od.Unlock()
 	(*repo.od.userOnline)[userId] = append((*repo.od.userOnline)[userId], socketId)
+	(*repo.od.socketOnline)[socketId] = userId
 }
 
 func (repo *Repository) ReadAll(userId uint, senderId uint) error {

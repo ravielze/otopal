@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	socketio "github.com/googollee/go-socket.io"
 )
@@ -17,11 +19,16 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 }
 
 func (cont Controller) OnConnect(s socketio.Conn) error {
-	panic("not implemented")
+	fmt.Printf("User %s connected to chat server.", s.ID())
+	return nil
 }
 
 func (cont Controller) OnDisconnect(s socketio.Conn) error {
-	panic("not implemented")
+	user, err := cont.uc.GetUserID(s.ID())
+	if err == nil {
+		cont.uc.Logout(user, s.ID())
+	}
+	return nil
 }
 
 func (cont Controller) OnReadMessage(s socketio.Conn, msg string) string {
@@ -33,5 +40,5 @@ func (cont Controller) OnRetrieveMessage(s socketio.Conn, msg string) string {
 }
 
 func (cont Controller) OnSendMessage(s socketio.Conn, msg string) string {
-	panic("not implemented")
+	//binding.JSON.BindBody([]byte(msg))
 }
