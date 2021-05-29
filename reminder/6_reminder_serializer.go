@@ -9,8 +9,8 @@ import (
 type (
 	UpdateRequest struct {
 		ReminderType string `json:"reminder_type" binding:"required,lte=6"`
-		Last         string `json:"last" binding:"required,eq=12"`
-		Next         string `json:"next" binding:"required,eq=12"`
+		Last         string `json:"last" binding:"required"`
+		Next         string `json:"next" binding:"required"`
 	}
 	ReminderResponse struct {
 		ReminderType string `json:"reminder_type"`
