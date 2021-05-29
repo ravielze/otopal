@@ -31,7 +31,7 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 }
 
 func (cont Controller) Check(ctx *gin.Context) {
-	utils.OKAndResponseData(ctx, cont.uc.GetUser(ctx))
+	utils.OKAndResponseData(ctx, cont.uc.GetUser(ctx).Convert())
 }
 
 func (cont Controller) Login(ctx *gin.Context) {
