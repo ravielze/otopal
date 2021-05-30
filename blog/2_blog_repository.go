@@ -17,10 +17,17 @@ func NewRepository(db *gorm.DB) IRepo {
 }
 
 func (repo Repository) AddThumbnail(blog Blog, fileId string) error {
-	if err := repo.db.
+	if err0 := repo.db.
 		Model(&Blog{}).
 		Where("blog_id = ?", blog.ID).
 		Where("author_id = ?", blog.AuthorID).
+		First(&blog).
+		Error; err0 != nil {
+		return err0
+	}
+
+	if err := repo.db.
+		Model(&blog).
 		Omit("Thumbnails.*").
 		Association("Thumbnails").
 		Append(&filemanager.File{
@@ -34,10 +41,17 @@ func (repo Repository) AddThumbnail(blog Blog, fileId string) error {
 }
 
 func (repo Repository) RemoveThumbnail(blog Blog, fileId string) error {
-	if err := repo.db.
+	if err0 := repo.db.
 		Model(&Blog{}).
 		Where("blog_id = ?", blog.ID).
 		Where("author_id = ?", blog.AuthorID).
+		First(&blog).
+		Error; err0 != nil {
+		return err0
+	}
+
+	if err := repo.db.
+		Model(&Blog{}).
 		Omit("Thumbnails.*").
 		Association("Thumbnails").
 		Delete(&filemanager.File{
@@ -77,6 +91,7 @@ func (repo Repository) GetBlog(title string, lastEdit time.Time) (Blog, error) {
 	var result Blog
 	if err := repo.db.
 		Preload("Author").
+		Preload("Thumbnails").
 		Where("LOWER(title) = LOWER(?)", title).
 		Where("DATE(updated_at) = DATE(?)", lastEdit).
 		First(&result).Error; err != nil {
@@ -90,6 +105,7 @@ func (repo Repository) GetBlogs(page uint) ([]Blog, error) {
 	pageOffset := (page - 1) * BLOG_PER_PAGE
 	if err := repo.db.
 		Preload("Author").
+		Preload("Thumbnails").
 		Offset(int(pageOffset)).
 		Limit(int(BLOG_PER_PAGE)).
 		Find(&result).
@@ -104,6 +120,7 @@ func (repo Repository) GetUserBlogs(userId uint, page uint) ([]Blog, error) {
 	pageOffset := (page - 1) * BLOG_PER_PAGE
 	if err := repo.db.
 		Preload("Author").
+		Preload("Thumbnails").
 		Where("author_id = ?", userId).
 		Offset(int(pageOffset)).
 		Limit(int(BLOG_PER_PAGE)).
@@ -117,6 +134,7 @@ func (repo Repository) GetUserBlogs(userId uint, page uint) ([]Blog, error) {
 func (repo Repository) Edit(blog Blog) (Blog, error) {
 	if err := repo.db.Model(&Blog{}).
 		Preload("Author").
+		Preload("Thumbnails").
 		Where("author_id = ?", blog.AuthorID).
 		Where("blog_id = ?", blog.ID).
 		Omit("Thumbnails").

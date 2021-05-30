@@ -97,7 +97,7 @@ func (repo Repository) AddFile(userId uint, fileGroup string, attachment *multip
 		FileType:     fileType.String(),
 		FileExt:      fileExt,
 		RealFilename: attachment.Filename,
-		Path:         fmt.Sprintf("%s/%s", fileGroup, fileName),
+		Path:         fmt.Sprintf("%s/%s/%s", repo.fs.storageRoot, fileGroup, fileName),
 		Size:         uint64(fileSize),
 		OwnerID:      userId,
 	}

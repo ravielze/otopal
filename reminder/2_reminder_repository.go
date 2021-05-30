@@ -27,8 +27,8 @@ func (repo Repository) GetOrCreate(userId uint) ([]Reminder, error) {
 		Reminder{
 			ReminderType: string(OIL),
 			OwnerID:      userId,
-			Last:         time.Time{},
-			Next:         time.Time{},
+			Last:         time.Now(),
+			Next:         time.Now().AddDate(0, 0, 21),
 		},
 	).FirstOrCreate(&oil).Error; err != nil {
 		return nil, err
@@ -43,13 +43,12 @@ func (repo Repository) GetOrCreate(userId uint) ([]Reminder, error) {
 		Reminder{
 			ReminderType: string(TUNE_UP),
 			OwnerID:      userId,
-			Last:         time.Time{},
-			Next:         time.Time{},
+			Last:         time.Now(),
+			Next:         time.Now().AddDate(0, 1, 14),
 		},
 	).FirstOrCreate(&tuneup).Error; err2 != nil {
 		return nil, err2
 	}
-
 	return []Reminder{oil, tuneup}, nil
 }
 

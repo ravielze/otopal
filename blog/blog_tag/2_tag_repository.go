@@ -103,7 +103,7 @@ func (repo Repository) FindTag(blogId string) ([]Tag, error) {
 	if err := repo.db.
 		Table(Tag{}.RelatedBlogsTableName()).
 		Where("blog_id = ?", blogId).
-		Find(&tagIds).
+		Pluck("tag_id", &tagIds).
 		Error; err != nil {
 		return nil, err
 	}

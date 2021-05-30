@@ -29,9 +29,9 @@ func main() {
 		mm.AddModule(auth.NewModule(db, g))
 		mm.AddModule(filemanager.NewModule(db, g))
 		mm.AddModule(reminder.NewModule(db, g))
+		mm.AddModule(blog_view.NewModule(db, g))
 		mm.AddModule(blog.NewModule(db, g))
 		mm.AddModule(blog_tag.NewModule(db, g))
-		mm.AddModule(blog_view.NewModule(db, g))
 		mm.AddModule(chat.NewModule(db, g))
 	}, func(db *gorm.DB, g *gin.Engine) {
 		chatServer := chat.NewChatServer()

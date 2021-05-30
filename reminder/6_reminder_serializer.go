@@ -23,7 +23,7 @@ func (item Reminder) Convert() ReminderResponse {
 	return ReminderResponse{
 		ReminderType: item.ReminderType,
 		Last:         item.Last.Format("02-01-2006"), //DD-MM-YYYY
-		Next:         item.Last.Format("02-01-2006"), //DD-MM-YYYY
+		Next:         item.Next.Format("02-01-2006"), //DD-MM-YYYY
 	}
 }
 

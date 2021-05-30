@@ -1,10 +1,6 @@
 package filemanager
 
 import (
-	"net/http"
-
-	common_code "github.com/ravielze/oculi/common/code"
-
 	"github.com/gin-gonic/gin"
 	cutils "github.com/ravielze/oculi/common/controller_utils"
 	"github.com/ravielze/oculi/common/utils"
@@ -49,7 +45,7 @@ func (cont Controller) GetFile(ctx *gin.Context) {
 		ctx.File("./" + result.Path)
 		return
 	}
-	utils.AbortAndResponseData(ctx, http.StatusBadRequest, common_code.UNKNOWN, "An unknown error has occured")
+	//utils.AbortAndResponseData(ctx, http.StatusBadRequest, common_code.UNKNOWN, "An unknown error has occured")
 }
 
 func (cont Controller) GetFilesByGroup(ctx *gin.Context) {
