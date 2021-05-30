@@ -33,6 +33,7 @@ type IUsecase interface {
 	FindBlogs(tags []string) ([]blog.Blog, error)
 	RandomTags(amount int) ([]Tag, error)
 	FindTag(title string, lastEdit string) ([]string, error)
+	ClearTags(user auth.User, blogId string) error
 }
 
 type IRepo interface {

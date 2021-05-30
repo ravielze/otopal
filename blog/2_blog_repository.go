@@ -78,10 +78,13 @@ func (repo Repository) Create(blog Blog) (Blog, error) {
 func (repo Repository) Delete(blog Blog) error {
 	if err := repo.db.
 		Model(&Blog{}).
-		Where("blog_id = ?", blog.ID).
+		Preload("Thumbnails").
 		Where("author_id = ?", blog.AuthorID).
-		Delete(&Blog{}).
+		First(&blog).
 		Error; err != nil {
+		return err
+	}
+	if err := repo.db.Delete(&blog).Error; err != nil {
 		return err
 	}
 	return nil

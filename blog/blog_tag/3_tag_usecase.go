@@ -20,6 +20,10 @@ func NewUsecase(repo IRepo) IUsecase {
 	}
 }
 
+func (uc Usecase) ClearTags(user auth.User, blogId string) error {
+	return uc.repo.ClearTags(user.ID, blogId)
+}
+
 func (uc Usecase) EditBlogTags(user auth.User, blogId string, tags []string) error {
 	tagsData := make([]Tag, len(tags))
 	for i, x := range tags {

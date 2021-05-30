@@ -9,6 +9,7 @@ import (
 	module_manager "github.com/ravielze/oculi/common/module"
 	"github.com/ravielze/oculi/common/radix36"
 	"github.com/ravielze/otopal/auth"
+	"github.com/ravielze/otopal/blog/blog_connector"
 	"github.com/ravielze/otopal/filemanager"
 )
 
@@ -57,6 +58,9 @@ func (uc Usecase) RemoveThumbnail(user auth.User, blogId string, fileId string) 
 
 func (uc Usecase) Delete(user auth.User, blogId string) error {
 	//TODO remove file
+	if err := blog_connector.BTCU.ClearTags(user, blogId); err != nil {
+		return err
+	}
 	return uc.repo.Delete(Blog{
 		UUIDBase: common.UUIDBase{
 			ID: blogId,

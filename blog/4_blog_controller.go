@@ -81,7 +81,7 @@ func (cont Controller) Delete(ctx *gin.Context) {
 		End()
 	if ok {
 		user := cont.auc.GetUser(ctx)
-		err := cont.uc.RemoveThumbnail(user, params["blogid"], params["fileid"])
+		err := cont.uc.Delete(user, params["blogid"])
 		if err != nil {
 			utils.AbortUsecaseError(ctx, err)
 			return

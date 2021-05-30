@@ -2,6 +2,7 @@ package blog_tag
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/ravielze/otopal/blog/blog_connector"
 	"gorm.io/gorm"
 )
 
@@ -26,6 +27,7 @@ func NewModule(db *gorm.DB, g *gin.Engine) Module {
 	cont := NewController(g, uc)
 
 	db.AutoMigrate(&Tag{})
+	blog_connector.BTCU = uc
 
 	return Module{
 		controller: cont,
