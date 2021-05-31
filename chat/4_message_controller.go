@@ -41,4 +41,13 @@ func (cont Controller) OnRetrieveMessage(s socketio.Conn, msg string) string {
 
 func (cont Controller) OnSendMessage(s socketio.Conn, msg string) string {
 	//binding.JSON.BindBody([]byte(msg))
+	return ""
+}
+
+func (cont Controller) OnLogin(s socketio.Conn, msg string) string {
+	return ""
+}
+
+func (cont Controller) OnLogout(s socketio.Conn, msg string) string {
+	return ""
 }

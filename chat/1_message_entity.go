@@ -57,4 +57,5 @@ type IRepo interface {
 	ReadAll(userId uint, senderId uint) error
 
 	GetMessage(userId uint, user2Id uint) ([]Message, error)
+	//GetOverview(userId uint) ([]uint, error)
 }
