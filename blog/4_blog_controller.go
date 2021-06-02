@@ -37,7 +37,7 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 		adminBlogGroup.DELETE("/delete/:blogid", cont.Delete)
 		adminBlogGroup.POST("/thumbnail/:blogid", cont.AddThumbnail)
 		adminBlogGroup.DELETE("/thumbnail/:blogid/:fileid", cont.RemoveThumbnail)
-		blogGroup.PUT("/info/:date/:slug", cont.Edit)
+		adminBlogGroup.PUT("/info/:date/:slug", cont.Edit)
 	}
 	return cont
 }

@@ -2,76 +2,109 @@ package chat
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	socketio "github.com/googollee/go-socket.io"
+	module_manager "github.com/ravielze/oculi/common/module"
+
+	"github.com/gorilla/websocket"
 )
 
 type ChatServer struct {
-	server  *socketio.Server
-	Running chan os.Signal
+	sync.RWMutex
+	Running    chan os.Signal
+	module     Module
+	connection map[int]*websocket.Conn
+	lastId     int
 }
 
-var server *socketio.Server
+var upgrade = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin:     func(r *http.Request) bool { return true },
+}
 
 func NewChatServer() *ChatServer {
-	server = socketio.NewServer(nil)
-	eventHandler(server)
-	return &ChatServer{
-		server:  server,
-		Running: make(chan os.Signal, 1),
+	result := &ChatServer{
+		Running:    make(chan os.Signal, 1),
+		module:     module_manager.GetModule("chat").(Module),
+		connection: make(map[int]*websocket.Conn),
+		lastId:     1,
+	}
+	return result
+}
+
+func (server *ChatServer) Run(g *gin.Engine) {
+	g.GET("/chat", func(c *gin.Context) {
+		go server.websocketHandler(c.Writer, c.Request)
+	})
+}
+
+func (server *ChatServer) OnDisconnect(conn *websocket.Conn) {
+	server.Lock()
+	defer server.Unlock()
+	for i, c := range server.connection {
+		if c == conn {
+			delete(server.connection, i)
+		}
 	}
 }
 
-func (cs *ChatServer) Run(g *gin.Engine, allowedAddress []string) {
-	socketGroup := g.Group("/socket.io")
-	socketGroup.GET("/*any", gin.WrapH(cs.server))
-	socketGroup.POST("/*any", gin.WrapH(cs.server))
-	go func() {
-		if err := cs.server.Serve(); err != nil {
-			panic(err)
+func (server *ChatServer) OnConnect(conn *websocket.Conn) {
+	server.Lock()
+	defer server.Unlock()
+	server.connection[server.lastId] = conn
+	server.Broadcast(struct {
+		Message string `json:"message"`
+	}{
+		Message: fmt.Sprintf("%d connected.", server.lastId),
+	})
+	server.lastId++
+	server.Refresh(conn)
+}
+
+func (server *ChatServer) Refresh(conn *websocket.Conn) {
+	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
+	conn.SetWriteDeadline(time.Now().Add(time.Second * 10))
+}
+
+func (server *ChatServer) Broadcast(msg interface{}) {
+	for _, c := range server.connection {
+		c.WriteJSON(msg)
+	}
+}
+
+func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrade.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	server.OnConnect(conn)
+	// conn.SetCloseHandler(func(code int, text string) error {
+	// 	for _, c := range server.connection {
+	// 		c.WriteMessage(t, []byte(response))
+	// 	}
+	// })
+	for {
+		var payload StandardPayload
+		err := conn.ReadJSON(&payload)
+		if err != nil {
+			fmt.Println("ERROR: " + err.Error())
+			break
 		}
-	}()
-	fmt.Println("Chat Server running...")
-	defer cs.server.Close()
-	<-cs.Running
+		fmt.Println(payload)
+		server.Refresh(conn)
+	}
+	server.OnDisconnect(conn)
 }
 
-func eventHandler(server *socketio.Server) {
-
-	server.OnConnect("/", func(s socketio.Conn) error {
-		s.SetContext("")
-		fmt.Println("connected:", s.ID())
-		return nil
-	})
-
-	server.OnEvent("/", "notice", func(s socketio.Conn, msg string) {
-		fmt.Println("notice:", msg)
-		s.Emit("reply", "have "+msg)
-	})
-
-	server.OnEvent("/", "msg", func(s socketio.Conn, msg string) string {
-		s.SetContext(msg)
-		fmt.Println(msg)
-		return "recv " + msg
-	})
-
-	server.OnEvent("/", "bye", func(s socketio.Conn) string {
-		last := s.Context().(string)
-		s.Emit("bye", last)
-		s.Close()
-		return last
-	})
-	server.OnEvent("/", "gotoChat", func(s socketio.Conn) {
-		s.SetContext("/chat")
-	})
-
-	server.OnError("/", func(s socketio.Conn, e error) {
-		fmt.Println("meet error:", e)
-	})
-
-	server.OnDisconnect("/", func(s socketio.Conn, msg string) {
-		fmt.Println("closed", msg)
-	})
-}
+type (
+	StandardPayload struct {
+		Event string      `json:"event"`
+		Data  interface{} `json:"data"`
+	}
+)

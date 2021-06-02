@@ -101,7 +101,8 @@ func (cont Controller) GetTechnicians(ctx *gin.Context) {
 	for i := range technicians {
 		result[i] = Technician{
 			User:     technicians[i].Convert(),
-			IsOnline: cont.cc.IsOnline(technicians[i].ID),
+			IsOnline: true,
+			//IsOnline: cont.cc.IsOnline(technicians[i].ID),
 		}
 	}
 	utils.OKAndResponseData(ctx, result)

@@ -25,7 +25,7 @@ func (Message) TableName() string {
 
 type IController interface {
 	OnConnect(s socketio.Conn) error
-	OnDisconnect(s socketio.Conn) error
+	OnDisconnect(s socketio.Conn, reason string)
 	OnRetrieveMessage(s socketio.Conn, msg string) string
 	OnSendMessage(s socketio.Conn, msg string) string
 	OnReadMessage(s socketio.Conn, msg string) string

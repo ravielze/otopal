@@ -1,0 +1,54 @@
+package chat
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	socketio "github.com/googollee/go-socket.io"
+	module_manager "github.com/ravielze/oculi/common/module"
+)
+
+type ChatServer struct {
+	server  *socketio.Server
+	Running chan os.Signal
+	module  Module
+}
+
+var server *socketio.Server
+
+func NewChatServer() *ChatServer {
+	server = socketio.NewServer(nil)
+	result := &ChatServer{
+		server:  server,
+		Running: make(chan os.Signal, 1),
+		module:  module_manager.GetModule("chat").(Module),
+	}
+	result.eventHandler(server)
+	return result
+}
+
+func (cs *ChatServer) Run(g *gin.Engine, allowedAddress []string) {
+	socketGroup := g.Group("/socket.io")
+	socketGroup.GET("/*any", gin.WrapH(cs.server))
+	socketGroup.POST("/*any", gin.WrapH(cs.server))
+	go func() {
+		if err := cs.server.Serve(); err != nil {
+			panic(err)
+		}
+	}()
+	fmt.Println("Chat Server running...")
+	defer cs.server.Close()
+	<-cs.Running
+}
+
+func (cs *ChatServer) eventHandler(server *socketio.Server) {
+
+	server.OnConnect("/", cs.module.controller.OnConnect)
+
+	server.OnError("/", func(s socketio.Conn, e error) {
+		fmt.Println("error:", e)
+	})
+
+	server.OnDisconnect("/", cs.module.controller.OnDisconnect)
+}

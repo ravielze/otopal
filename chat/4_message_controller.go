@@ -23,12 +23,11 @@ func (cont Controller) OnConnect(s socketio.Conn) error {
 	return nil
 }
 
-func (cont Controller) OnDisconnect(s socketio.Conn) error {
+func (cont Controller) OnDisconnect(s socketio.Conn, reason string) {
 	user, err := cont.uc.GetUserID(s.ID())
 	if err == nil {
 		cont.uc.Logout(user, s.ID())
 	}
-	return nil
 }
 
 func (cont Controller) OnReadMessage(s socketio.Conn, msg string) string {
