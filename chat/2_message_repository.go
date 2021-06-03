@@ -88,13 +88,10 @@ func (repo *Repository) ReadAll(receiverId uint, senderId uint) error {
 		Error
 }
 
-func (repo *Repository) GetLastMessageUniqueSender(userId uint) ([]Message, error) {
-	return nil, nil
-}
-
 func (repo *Repository) GetMessage(userId uint, user2Id uint) ([]Message, error) {
 	var result []Message
 	if err := repo.db.Model(&Message{}).
+		Preload("User").Preload("Receiver").
 		Where(map[string]interface{}{
 			"user_id":     userId,
 			"receiver_id": user2Id,
@@ -114,6 +111,7 @@ func (repo *Repository) GetMessage(userId uint, user2Id uint) ([]Message, error)
 func (repo *Repository) GetLastMessage(userId uint, user2Id uint) (Message, error) {
 	var result Message
 	if err := repo.db.Model(&Message{}).
+		Preload("User").Preload("Receiver").
 		Where(map[string]interface{}{
 			"user_id":     userId,
 			"receiver_id": user2Id,

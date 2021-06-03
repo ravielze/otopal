@@ -2,9 +2,12 @@ package chat
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ravielze/oculi/common/controller_utils"
 	module_manager "github.com/ravielze/oculi/common/module"
+	"github.com/ravielze/oculi/common/utils"
 	"github.com/ravielze/otopal/auth"
 )
 
@@ -105,13 +108,76 @@ func (cont Controller) OnReadMessage(s *SocketConnection, data interface{}) {
 }
 
 func (cont Controller) RetrieveMessage(ctx *gin.Context) {
-	panic("not implemented")
+	ok, params, _ := controller_utils.NewControlChain(ctx).Param("otherUserId").End()
+	if ok {
+		otherUserId, err := strconv.Atoi(params["otherUserId"])
+		if err != nil {
+			utils.AbortUsecaseError(ctx, err)
+			return
+		}
+		user := cont.auc.GetUser(ctx)
+		result, err2 := cont.uc.GetMessage(user.ID, uint(otherUserId))
+		if err2 != nil {
+			utils.AbortUsecaseError(ctx, err2)
+			return
+		}
+		otherUser, err3 := cont.auc.GetRawUser(uint(otherUserId))
+		if err3 != nil {
+			utils.AbortUsecaseError(ctx, err3)
+			return
+		}
+		utils.OKAndResponseData(ctx, NewMessageRetrieveResponse(result, user, otherUser))
+	}
 }
 
 func (cont Controller) Overview(ctx *gin.Context) {
-	panic("a")
+	user := cont.auc.GetUser(ctx)
+	resultMsg, resultUnread, err2 := cont.uc.GetOverview(user.ID)
+	if err2 != nil {
+		utils.AbortUsecaseError(ctx, err2)
+		return
+	}
+
+	overview := make([]SubMessageOverviewResponse, len(resultMsg))
+	for i := range overview {
+		overview[i] = resultMsg[i].ConvertOverview(user.ID, resultUnread[i])
+	}
+
+	utils.OKAndResponseData(ctx, NewMessageOverviewResponse(overview, user))
 }
 
 func (cont Controller) OnSendMessage(s *SocketConnection, data interface{}) {
-	panic("not implemented")
+	buff, err := json.Marshal(data)
+	if err != nil {
+		s.Message(NewErrorPayload(&s.User, err))
+		return
+	}
+	var payload SendMessageRequestPayload
+	err = json.Unmarshal(buff, &payload)
+	if err != nil {
+		s.Message(NewErrorPayload(&s.User, err))
+		return
+	}
+
+	receiver, err2 := cont.auc.GetRawUser(payload.ReceiverID)
+	if err2 != nil {
+		s.Message(NewErrorPayload(&s.User, err2))
+		return
+	}
+
+	msg, err3 := cont.uc.SendMessage(s.User.ID, payload.ReceiverID, payload.Message)
+	if err3 != nil {
+		s.Message(NewErrorPayload(&s.User, err3))
+		return
+	}
+
+	s.Message(NewSendPayload(&s.User, &receiver, msg.Message, msg.CreatedAt.Format("02-01-2006 15:04:05")))
+	if cont.uc.IsOnline(receiver.ID) {
+		for _, c := range s.server.GetConnectionByUser(receiver.ID) {
+			if c == nil {
+				continue
+			}
+			c.Message(NewSendPayload(&s.User, &receiver, msg.Message, msg.CreatedAt.Format("02-01-2006 15:04:05")))
+		}
+	}
 }

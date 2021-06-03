@@ -50,7 +50,7 @@ type (
 	}
 
 	ReadMessageRequestPayload struct {
-		SenderID uint `json:"receiver_id"`
+		SenderID uint `json:"sender_id"`
 	}
 
 	ReadMessageResponsePayload struct {
