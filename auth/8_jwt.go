@@ -49,6 +49,27 @@ func ExtractTokenID(req *http.Request) (uint, error) {
 	}
 	return 0, nil
 }
+func ExtractExpired(req *http.Request) (int64, error) {
+	tokenString := ExtractToken(req)
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		exp, err := strconv.ParseInt(fmt.Sprintf("%.0f", claims["exp"]), 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		return exp, nil
+	}
+	return 0, nil
+}
 
 func TokenValid(req *http.Request) error {
 	tokenString := ExtractToken(req)

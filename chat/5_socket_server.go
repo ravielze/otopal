@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -47,16 +48,30 @@ func (server *ChatServer) Run(g *gin.Engine) {
 		auc.AllowedRole(auth.ROLE_TECHNICIAN, auth.ROLE_CUSTOMER),
 		func(c *gin.Context) {
 			user := auc.GetUser(c)
-			go server.websocketHandler(c.Writer, c.Request, user)
+			exp := c.Keys["exp"].(int64)
+			go server.websocketHandler(c.Writer, c.Request, user, exp)
 		})
 }
 
-func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Request, user auth.User) {
+func (server *ChatServer) Handle(payload *StandardPayload, socketConn *SocketConnection) {
+	if !socketConn.IsValid() {
+		socketConn.connection.Close()
+		return
+	}
+	switch strings.ToLower(payload.Event) {
+	case "send":
+		server.module.controller.OnSendMessage(socketConn, payload.Data)
+	case "read":
+		server.module.controller.OnReadMessage(socketConn, payload.Data)
+	}
+}
+
+func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Request, user auth.User, exp int64) {
 	conn, err := upgrade.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 	}
-	server.OnConnect(conn, user)
+	so := server.OnConnect(conn, user, exp)
 	// conn.SetCloseHandler(func(code int, text string) error {
 	// 	for _, c := range server.connection {
 	// 		c.WriteMessage(t, []byte(response))
@@ -69,7 +84,7 @@ func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Reques
 			fmt.Println("ERROR: " + err.Error())
 			break
 		}
-		fmt.Println(payload)
+		server.Handle(&payload, so)
 		server.Refresh(conn)
 	}
 	server.OnDisconnect(conn)

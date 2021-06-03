@@ -113,7 +113,8 @@ func (u Usecase) AllowedRole(allowedRole ...Role) gin.HandlerFunc {
 func (u Usecase) AuthenticationNeeded() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		userId, err := ExtractTokenID(ctx.Request)
-		if err != nil {
+		exp, errexp := ExtractExpired(ctx.Request)
+		if err != nil || errexp != nil {
 			utils.AbortAndResponse(ctx, http.StatusUnauthorized, code.UNAUTHORIZED)
 			return
 		}
@@ -126,6 +127,7 @@ func (u Usecase) AuthenticationNeeded() gin.HandlerFunc {
 			ctx.Keys = map[string]interface{}{}
 		}
 		ctx.Keys["user"] = user
+		ctx.Keys["exp"] = exp
 	}
 }
 

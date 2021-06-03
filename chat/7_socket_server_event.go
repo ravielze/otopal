@@ -19,10 +19,10 @@ func (server *ChatServer) OnDisconnect(conn *websocket.Conn) {
 	}
 }
 
-func (server *ChatServer) OnConnect(conn *websocket.Conn, user auth.User) {
+func (server *ChatServer) OnConnect(conn *websocket.Conn, user auth.User, exp int64) *SocketConnection {
 	server.Lock()
 	defer server.Unlock()
-	so := NewConnection(conn, server.lastId, user)
+	so := NewConnection(conn, server.lastId, user, exp)
 	server.connection[server.lastId] = so
 	server.Broadcast(struct {
 		Message string `json:"message"`
@@ -32,6 +32,7 @@ func (server *ChatServer) OnConnect(conn *websocket.Conn, user auth.User) {
 	server.lastId++
 	server.Refresh(conn)
 	server.module.controller.OnConnect(&so)
+	return &so
 }
 
 func (server *ChatServer) Refresh(conn *websocket.Conn) {
