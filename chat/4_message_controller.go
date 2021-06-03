@@ -1,16 +1,22 @@
 package chat
 
 import (
+	"encoding/json"
+
 	"github.com/gin-gonic/gin"
+	module_manager "github.com/ravielze/oculi/common/module"
+	"github.com/ravielze/otopal/auth"
 )
 
 type Controller struct {
-	uc IUsecase
+	uc  IUsecase
+	auc auth.IUsecase
 }
 
 func NewController(g *gin.Engine, uc IUsecase) IController {
 	cont := Controller{
-		uc: uc,
+		uc:  uc,
+		auc: module_manager.GetModule("auth").(auth.Module).Usecase(),
 	}
 	return cont
 }
@@ -47,3 +53,65 @@ func NewController(g *gin.Engine, uc IUsecase) IController {
 // func (cont Controller) OnLogout(s socketio.Conn, msg string) string {
 // 	return ""
 // }
+
+func (cont Controller) OnConnect(s *SocketConnection) {
+	cont.uc.Login(s.User.ID, s.ID)
+	s.server.Broadcast(
+		NewStatusPayload(&s.User, true),
+	)
+}
+
+func (cont Controller) OnDisconnect(s *SocketConnection) {
+	cont.uc.Logout(s.User.ID, s.ID)
+	s.server.Broadcast(
+		NewStatusPayload(&s.User, false),
+	)
+}
+
+func (cont Controller) OnReadMessage(s *SocketConnection, data interface{}) {
+	buff, err := json.Marshal(data)
+	if err != nil {
+		s.Message(NewErrorPayload(&s.User, err))
+		return
+	}
+	var payload ReadMessageRequestPayload
+	err = json.Unmarshal(buff, &payload)
+	if err != nil {
+		s.Message(NewErrorPayload(&s.User, err))
+		return
+	}
+
+	sender, err2 := cont.auc.GetRawUser(payload.SenderID)
+	if err2 != nil {
+		s.Message(NewErrorPayload(&s.User, err2))
+		return
+	}
+
+	err = cont.uc.ReadAll(s.User.ID, payload.SenderID)
+	if err != nil {
+		s.Message(NewErrorPayload(&s.User, err))
+		return
+	}
+
+	s.Message(NewReadPayload(&s.User, &sender))
+	if cont.uc.IsOnline(sender.ID) {
+		for _, c := range s.server.GetConnectionByUser(sender.ID) {
+			if c == nil {
+				continue
+			}
+			c.Message(NewReadPayload(&s.User, &sender))
+		}
+	}
+}
+
+func (cont Controller) RetrieveMessage(ctx *gin.Context) {
+	panic("not implemented")
+}
+
+func (cont Controller) Overview(ctx *gin.Context) {
+	panic("a")
+}
+
+func (cont Controller) OnSendMessage(s *SocketConnection, data interface{}) {
+	panic("not implemented")
+}

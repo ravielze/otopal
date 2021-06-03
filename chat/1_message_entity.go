@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"github.com/ravielze/oculi/common"
 	"github.com/ravielze/otopal/auth"
 )
@@ -25,15 +24,13 @@ func (Message) TableName() string {
 }
 
 type IController interface {
-	OnConnect(s *websocket.Conn) error
-	OnDisconnect(s *websocket.Conn)
+	RetrieveMessage(ctx *gin.Context)
+	Overview(ctx *gin.Context)
 
-	OnRetrieveMessage(ctx *gin.Context)
-
-	OnSendMessage(s *websocket.Conn, data interface{}) string
-	OnReadMessage(s *websocket.Conn, data interface{}) string
-	OnLogin(s *websocket.Conn, data interface{}) string
-	OnLogout(s *websocket.Conn, data interface{}) string
+	OnConnect(s *SocketConnection)
+	OnDisconnect(s *SocketConnection)
+	OnSendMessage(s *SocketConnection, data interface{})
+	OnReadMessage(s *SocketConnection, data interface{})
 }
 
 type IUsecase interface {
@@ -44,6 +41,7 @@ type IUsecase interface {
 	Logout(userId uint, socketId int) error
 
 	GetMessage(userId uint, user2Id uint) ([]Message, error)
+	GetOverview(userId uint) ([]Message, []uint, error)
 
 	IsOnline(userId uint) bool
 
@@ -57,8 +55,11 @@ type IRepo interface {
 	Offline(userId uint, socketId int)
 
 	CreateMessage(msg Message) (Message, error)
-	ReadAll(userId uint, senderId uint) error
+	ReadAll(receiverId uint, senderId uint) error
 
 	GetMessage(userId uint, user2Id uint) ([]Message, error)
 	//GetOverview(userId uint) ([]uint, error)
+	GetUnreadMessage(senderId, receiverId uint) (uint, error)
+	GetSender(userId uint) ([]uint, error)
+	GetLastMessage(userId uint, user2Id uint) (Message, error)
 }

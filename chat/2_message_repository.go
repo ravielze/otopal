@@ -79,13 +79,17 @@ func (repo *Repository) Online(userId uint, socketId int) {
 	(*repo.od.socketOnline)[socketId] = userId
 }
 
-func (repo *Repository) ReadAll(userId uint, senderId uint) error {
+func (repo *Repository) ReadAll(receiverId uint, senderId uint) error {
 	return repo.db.
 		Model(&Message{}).
-		Where("receiver_id = ?", userId).
+		Where("receiver_id = ?", receiverId).
 		Where("user_id = ?", senderId).
 		Update("read", true).
 		Error
+}
+
+func (repo *Repository) GetLastMessageUniqueSender(userId uint) ([]Message, error) {
+	return nil, nil
 }
 
 func (repo *Repository) GetMessage(userId uint, user2Id uint) ([]Message, error) {
@@ -105,4 +109,70 @@ func (repo *Repository) GetMessage(userId uint, user2Id uint) ([]Message, error)
 		return nil, err
 	}
 	return result, nil
+}
+
+func (repo *Repository) GetLastMessage(userId uint, user2Id uint) (Message, error) {
+	var result Message
+	if err := repo.db.Model(&Message{}).
+		Where(map[string]interface{}{
+			"user_id":     userId,
+			"receiver_id": user2Id,
+		}).
+		Or(map[string]interface{}{
+			"user_id":     user2Id,
+			"receiver_id": userId,
+		}).
+		Order("created_time DESC").
+		Limit(1).
+		Find(&result).
+		Error; err != nil {
+		return Message{}, err
+	}
+	return result, nil
+}
+
+func (repo *Repository) GetSender(userId uint) ([]uint, error) {
+	var result, rresult, sresult []uint
+	if err := repo.db.
+		Model(&Message{}).
+		Where("user_id = ?", userId).
+		Distinct().
+		Pluck("receiver_id", &rresult).Error; err != nil {
+		return nil, err
+	}
+	if err := repo.db.
+		Model(&Message{}).
+		Where("receiver_id = ?", userId).
+		Distinct().
+		Pluck("user_id", &sresult).Error; err != nil {
+		return nil, err
+	}
+	type void struct{}
+	resultMap := map[uint]void{}
+	for _, i := range rresult {
+		resultMap[i] = void{}
+	}
+	for _, i := range sresult {
+		resultMap[i] = void{}
+	}
+	for i := range resultMap {
+		result = append(result, i)
+	}
+	return result, nil
+}
+
+func (repo *Repository) GetUnreadMessage(senderId, receiverId uint) (uint, error) {
+	var result int64
+	if err := repo.db.
+		Model(&Message{}).
+		Where("user_id = ?", senderId).
+		Where("read = ?", false).
+		Count(&result).
+		Error; err != nil {
+		return 0, err
+	}
+	if result > 999 {
+		result = 1000
+	}
+	return uint(result), nil
 }

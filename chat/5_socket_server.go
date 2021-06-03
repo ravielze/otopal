@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	module_manager "github.com/ravielze/oculi/common/module"
+	"github.com/ravielze/otopal/auth"
 
 	"github.com/gorilla/websocket"
 )
@@ -18,7 +18,7 @@ type ChatServer struct {
 	sync.RWMutex
 	Running    chan os.Signal
 	module     Module
-	connection map[int]*websocket.Conn
+	connection map[int]SocketConnection
 	lastId     int
 }
 
@@ -28,62 +28,35 @@ var upgrade = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
+var ChatServerInstance *ChatServer
+
 func NewChatServer() *ChatServer {
 	result := &ChatServer{
 		Running:    make(chan os.Signal, 1),
 		module:     module_manager.GetModule("chat").(Module),
-		connection: make(map[int]*websocket.Conn),
+		connection: make(map[int]SocketConnection),
 		lastId:     1,
 	}
 	return result
 }
 
 func (server *ChatServer) Run(g *gin.Engine) {
-	g.GET("/chat", func(c *gin.Context) {
-		go server.websocketHandler(c.Writer, c.Request)
-	})
+	auc := module_manager.GetModule("auth").(auth.Module).Usecase()
+	g.GET("/chat",
+		auc.AuthenticationNeeded(),
+		auc.AllowedRole(auth.ROLE_TECHNICIAN, auth.ROLE_CUSTOMER),
+		func(c *gin.Context) {
+			user := auc.GetUser(c)
+			go server.websocketHandler(c.Writer, c.Request, user)
+		})
 }
 
-func (server *ChatServer) OnDisconnect(conn *websocket.Conn) {
-	server.Lock()
-	defer server.Unlock()
-	for i, c := range server.connection {
-		if c == conn {
-			delete(server.connection, i)
-		}
-	}
-}
-
-func (server *ChatServer) OnConnect(conn *websocket.Conn) {
-	server.Lock()
-	defer server.Unlock()
-	server.connection[server.lastId] = conn
-	server.Broadcast(struct {
-		Message string `json:"message"`
-	}{
-		Message: fmt.Sprintf("%d connected.", server.lastId),
-	})
-	server.lastId++
-	server.Refresh(conn)
-}
-
-func (server *ChatServer) Refresh(conn *websocket.Conn) {
-	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
-	conn.SetWriteDeadline(time.Now().Add(time.Second * 10))
-}
-
-func (server *ChatServer) Broadcast(msg interface{}) {
-	for _, c := range server.connection {
-		c.WriteJSON(msg)
-	}
-}
-
-func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Request) {
+func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Request, user auth.User) {
 	conn, err := upgrade.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 	}
-	server.OnConnect(conn)
+	server.OnConnect(conn, user)
 	// conn.SetCloseHandler(func(code int, text string) error {
 	// 	for _, c := range server.connection {
 	// 		c.WriteMessage(t, []byte(response))
@@ -101,10 +74,3 @@ func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Reques
 	}
 	server.OnDisconnect(conn)
 }
-
-type (
-	StandardPayload struct {
-		Event string      `json:"event"`
-		Data  interface{} `json:"data"`
-	}
-)
