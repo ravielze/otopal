@@ -3,7 +3,8 @@ package chat
 import (
 	"time"
 
-	socketio "github.com/googollee/go-socket.io"
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"github.com/ravielze/oculi/common"
 	"github.com/ravielze/otopal/auth"
 )
@@ -24,34 +25,36 @@ func (Message) TableName() string {
 }
 
 type IController interface {
-	OnConnect(s socketio.Conn) error
-	OnDisconnect(s socketio.Conn, reason string)
-	OnRetrieveMessage(s socketio.Conn, msg string) string
-	OnSendMessage(s socketio.Conn, msg string) string
-	OnReadMessage(s socketio.Conn, msg string) string
-	OnLogin(s socketio.Conn, msg string) string
-	OnLogout(s socketio.Conn, msg string) string
+	OnConnect(s *websocket.Conn) error
+	OnDisconnect(s *websocket.Conn)
+
+	OnRetrieveMessage(ctx *gin.Context)
+
+	OnSendMessage(s *websocket.Conn, data interface{}) string
+	OnReadMessage(s *websocket.Conn, data interface{}) string
+	OnLogin(s *websocket.Conn, data interface{}) string
+	OnLogout(s *websocket.Conn, data interface{}) string
 }
 
 type IUsecase interface {
 	SendMessage(userId uint, receiverId uint, message string) (Message, error)
 	ReadAll(userId uint, receiverId uint) error
 
-	Login(userId uint, socketId string) error
-	Logout(userId uint, socketId string) error
+	Login(userId uint, socketId int) error
+	Logout(userId uint, socketId int) error
 
 	GetMessage(userId uint, user2Id uint) ([]Message, error)
 
 	IsOnline(userId uint) bool
 
-	GetUserID(socketId string) (uint, error)
+	GetUserID(socketId int) (uint, error)
 }
 
 type IRepo interface {
-	GetUserID(socketId string) (uint, error)
+	GetUserID(socketId int) (uint, error)
 	IsLoggedIn(userId uint) bool
-	Online(userId uint, socketId string)
-	Offline(userId uint, socketId string)
+	Online(userId uint, socketId int)
+	Offline(userId uint, socketId int)
 
 	CreateMessage(msg Message) (Message, error)
 	ReadAll(userId uint, senderId uint) error

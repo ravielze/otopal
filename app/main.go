@@ -35,8 +35,9 @@ func main() {
 		mm.AddModule(chat.NewModule(db, g))
 	}, func(db *gorm.DB, g *gin.Engine) {
 		chatServer := chat.NewChatServer()
+		middleware.InstallCors(g)
 		signal.Notify(chatServer.Running, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-		go chatServer.Run(g, nil)
+		chatServer.Run(g)
 		go g.Run()
 		<-chatServer.Running
 		os.Exit(0)

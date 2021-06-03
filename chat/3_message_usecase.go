@@ -30,12 +30,12 @@ func (uc Usecase) SendMessage(userId uint, receiverId uint, message string) (Mes
 	})
 }
 
-func (uc Usecase) Login(userId uint, socketId string) error {
+func (uc Usecase) Login(userId uint, socketId int) error {
 	uc.repo.Online(userId, socketId)
 	return nil
 }
 
-func (uc Usecase) Logout(userId uint, socketId string) error {
+func (uc Usecase) Logout(userId uint, socketId int) error {
 	uc.repo.Offline(userId, socketId)
 	return nil
 }
@@ -48,6 +48,6 @@ func (uc Usecase) GetMessage(userId uint, user2Id uint) ([]Message, error) {
 	return uc.repo.GetMessage(userId, user2Id)
 }
 
-func (uc Usecase) GetUserID(socketId string) (uint, error) {
+func (uc Usecase) GetUserID(socketId int) (uint, error) {
 	return uc.repo.GetUserID(socketId)
 }
