@@ -10,13 +10,13 @@ import (
 
 type Controller struct {
 	uc IUsecase
-	cc chat_connector.ChatAuthUsecase
+	cc *chat_connector.ChatAuthUsecase
 }
 
 func NewController(g *gin.Engine, uc IUsecase) IController {
 	cont := Controller{
 		uc: uc,
-		cc: chat_connector.CAU,
+		cc: nil,
 	}
 	authGroup := g.Group("/auth")
 	{
@@ -88,6 +88,9 @@ func (cont Controller) Update(ctx *gin.Context) {
 }
 
 func (cont Controller) GetTechnicians(ctx *gin.Context) {
+	if cont.cc == nil {
+		cont.cc = &chat_connector.CAU
+	}
 	technicians, err := cont.uc.GetTechnicians()
 	if err != nil {
 		utils.AbortUsecaseError(ctx, err)
@@ -101,8 +104,7 @@ func (cont Controller) GetTechnicians(ctx *gin.Context) {
 	for i := range technicians {
 		result[i] = Technician{
 			User:     technicians[i].Convert(),
-			IsOnline: true,
-			//IsOnline: cont.cc.IsOnline(technicians[i].ID),
+			IsOnline: (*cont.cc).IsOnline(technicians[i].ID),
 		}
 	}
 	utils.OKAndResponseData(ctx, result)

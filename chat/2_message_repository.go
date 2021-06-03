@@ -100,7 +100,7 @@ func (repo *Repository) GetMessage(userId uint, user2Id uint) ([]Message, error)
 			"user_id":     user2Id,
 			"receiver_id": userId,
 		}).
-		Order("created_time DESC").
+		Order("created_at DESC").
 		Find(&result).
 		Error; err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ func (repo *Repository) GetLastMessage(userId uint, user2Id uint) (Message, erro
 			"user_id":     user2Id,
 			"receiver_id": userId,
 		}).
-		Order("created_time DESC").
+		Order("created_at DESC").
 		Limit(1).
 		Find(&result).
 		Error; err != nil {

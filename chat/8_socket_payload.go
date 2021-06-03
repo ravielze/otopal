@@ -115,7 +115,7 @@ func NewMessageRetrieveResponse(item []Message, sender, receiver auth.User) Mess
 		return MessagesRetrieveResponse{
 			Sender:   sender.Convert(),
 			Receiver: receiver.Convert(),
-			Messages: nil,
+			Messages: make([]MessageResponse, 0),
 		}
 	}
 

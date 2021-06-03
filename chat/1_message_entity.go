@@ -9,7 +9,7 @@ import (
 )
 
 type Message struct {
-	common.UUIDBase `gorm:"embedded;embeddedPrefix:blog_"`
+	common.UUIDBase `gorm:"embedded;embeddedPrefix:message_"`
 	CreatedAt       time.Time `json:"created_at"`
 	Message         string    `gorm:"type:VARCHAR(2097152);"`
 	UserID          uint

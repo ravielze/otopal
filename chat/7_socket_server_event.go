@@ -36,8 +36,8 @@ func (server *ChatServer) OnConnect(conn *websocket.Conn, user auth.User, exp in
 }
 
 func (server *ChatServer) Refresh(conn *websocket.Conn) {
-	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
-	conn.SetWriteDeadline(time.Now().Add(time.Second * 10))
+	conn.SetReadDeadline(time.Now().Add(time.Minute * 3))
+	conn.SetWriteDeadline(time.Now().Add(time.Minute * 3))
 }
 
 func (server *ChatServer) Broadcast(msg interface{}) {

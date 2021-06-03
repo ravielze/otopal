@@ -23,7 +23,7 @@ func ExtractToken(req *http.Request) string {
 	bearToken := req.Header.Get("Authorization")
 	if len(bearToken) == 0 {
 		bearTokenQuery, ok := req.URL.Query()["Authorization"]
-		if ok && len(bearTokenQuery[0]) == 1 {
+		if ok && len(bearTokenQuery) == 1 {
 			return bearTokenQuery[0]
 		}
 		return ""

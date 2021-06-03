@@ -55,6 +55,7 @@ func (server *ChatServer) Run(g *gin.Engine) {
 
 func (server *ChatServer) Handle(payload *StandardPayload, socketConn *SocketConnection) {
 	if !socketConn.IsValid() {
+		server.OnDisconnect(socketConn.connection)
 		socketConn.connection.Close()
 		return
 	}
