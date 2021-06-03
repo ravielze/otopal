@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -82,7 +81,6 @@ func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Reques
 		var payload StandardPayload
 		err := conn.ReadJSON(&payload)
 		if err != nil {
-			fmt.Println("ERROR: " + err.Error())
 			break
 		}
 		server.Handle(&payload, so)

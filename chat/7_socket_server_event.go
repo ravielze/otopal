@@ -41,17 +41,23 @@ func (server *ChatServer) Refresh(conn *websocket.Conn) {
 }
 
 func (server *ChatServer) Broadcast(msg interface{}) {
+	server.Lock()
+	defer server.Unlock()
 	for _, c := range server.connection {
 		c.connection.WriteJSON(msg)
 	}
 }
 
 func (server *ChatServer) GetConnection(socketId int) *SocketConnection {
+	server.Lock()
+	defer server.Unlock()
 	result := server.connection[socketId]
 	return &result
 }
 
 func (server *ChatServer) GetConnectionByUser(userId uint) []*SocketConnection {
+	server.Lock()
+	defer server.Unlock()
 	var result []*SocketConnection
 	for _, c := range server.connection {
 		if c.User.ID == userId {
