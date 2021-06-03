@@ -21,6 +21,13 @@ func CreateToken(userId uint) (string, error) {
 
 func ExtractToken(req *http.Request) string {
 	bearToken := req.Header.Get("Authorization")
+	if len(bearToken) == 0 {
+		bearTokenQuery, ok := req.URL.Query()["Authorization"]
+		if ok && len(bearTokenQuery[0]) == 1 {
+			return bearTokenQuery[0]
+		}
+		return ""
+	}
 	keys := strings.Split(bearToken, " ")
 	if len(keys) == 2 {
 		return keys[1]
