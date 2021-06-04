@@ -13,7 +13,7 @@ func (server *ChatServer) OnDisconnect(conn *websocket.Conn) {
 	defer server.Unlock()
 	for i, c := range server.connection {
 		if c.connection == conn {
-			server.module.controller.OnDisconnect(&c)
+			server.module.controller.OnDisconnect(c)
 			delete(server.connection, i)
 		}
 	}
@@ -23,7 +23,7 @@ func (server *ChatServer) OnConnect(conn *websocket.Conn, user auth.User, exp in
 	server.Lock()
 	defer server.Unlock()
 	so := NewConnection(conn, server.lastId, user, exp)
-	server.connection[server.lastId] = so
+	server.connection[server.lastId] = &so
 	server.Broadcast(struct {
 		Message string `json:"message"`
 	}{
@@ -49,8 +49,7 @@ func (server *ChatServer) Broadcast(msg interface{}) {
 func (server *ChatServer) GetConnection(socketId int) *SocketConnection {
 	server.Lock()
 	defer server.Unlock()
-	result := server.connection[socketId]
-	return &result
+	return server.connection[socketId]
 }
 
 func (server *ChatServer) GetConnectionByUser(userId uint) []*SocketConnection {
@@ -59,7 +58,7 @@ func (server *ChatServer) GetConnectionByUser(userId uint) []*SocketConnection {
 	var result []*SocketConnection
 	for _, c := range server.connection {
 		if c.User.ID == userId {
-			result = append(result, &c)
+			result = append(result, c)
 		}
 	}
 	return result

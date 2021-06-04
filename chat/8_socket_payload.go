@@ -164,7 +164,7 @@ func NewReadPayload(sender, receiver *auth.User) ReadMessageResponsePayload {
 func NewSendPayload(sender, receiver *auth.User, msg, sent string) SendMessageResponsePayload {
 	return SendMessageResponsePayload{
 		ResponsePayload: ResponsePayload{
-			Payload: READ,
+			Payload: SEND,
 			Sender:  sender.Convert(),
 		},
 		Receiver: receiver.Convert(),

@@ -18,7 +18,7 @@ type ChatServer struct {
 	sync.RWMutex
 	Running    chan os.Signal
 	module     Module
-	connection map[int]SocketConnection
+	connection map[int]*SocketConnection
 	lastId     int
 }
 
@@ -34,7 +34,7 @@ func NewChatServer() *ChatServer {
 	result := &ChatServer{
 		Running:    make(chan os.Signal, 1),
 		module:     module_manager.GetModule("chat").(Module),
-		connection: make(map[int]SocketConnection),
+		connection: make(map[int]*SocketConnection),
 		lastId:     1,
 	}
 	return result
