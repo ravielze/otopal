@@ -48,7 +48,7 @@ func (server *ChatServer) Run(g *gin.Engine) {
 		func(c *gin.Context) {
 			user := auc.GetUser(c)
 			exp := c.Keys["exp"].(int64)
-			go server.websocketHandler(c.Writer, c.Request, user, exp)
+			server.websocketHandler(c.Writer, c.Request, user, exp)
 		})
 }
 
@@ -70,6 +70,7 @@ func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Reques
 	conn, err := upgrade.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	so := server.OnConnect(conn, user, exp)
 	var payload StandardPayload

@@ -2,7 +2,6 @@ package chat
 
 import (
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -151,7 +150,6 @@ func (cont Controller) OnSendMessage(s *SocketConnection, data interface{}) {
 			if c == nil {
 				continue
 			}
-			fmt.Println(c.User)
 			c.Message(NewSendPayload(&s.User, &receiver, msg.Message, msg.CreatedAt.Format("02-01-2006 15:04:05")))
 		}
 	}
