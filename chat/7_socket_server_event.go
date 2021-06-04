@@ -41,8 +41,6 @@ func (server *ChatServer) Refresh(conn *websocket.Conn) {
 }
 
 func (server *ChatServer) Broadcast(msg interface{}) {
-	server.Lock()
-	defer server.Unlock()
 	for _, c := range server.connection {
 		c.connection.WriteJSON(msg)
 	}

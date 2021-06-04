@@ -23,8 +23,8 @@ type ChatServer struct {
 }
 
 var upgrade = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  4096,
+	WriteBufferSize: 4096,
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
@@ -72,13 +72,9 @@ func (server *ChatServer) websocketHandler(w http.ResponseWriter, r *http.Reques
 		log.Println(err)
 	}
 	so := server.OnConnect(conn, user, exp)
-	// conn.SetCloseHandler(func(code int, text string) error {
-	// 	for _, c := range server.connection {
-	// 		c.WriteMessage(t, []byte(response))
-	// 	}
-	// })
+	var payload StandardPayload
 	for {
-		var payload StandardPayload
+		payload = StandardPayload{}
 		err := conn.ReadJSON(&payload)
 		if err != nil {
 			break
