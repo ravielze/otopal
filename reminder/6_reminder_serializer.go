@@ -8,7 +8,7 @@ import (
 
 type (
 	UpdateRequest struct {
-		ReminderType string `json:"reminder_type" binding:"required,lte=6"`
+		ReminderType string `json:"reminder_type" binding:"required,lte=7"`
 		Last         string `json:"last" binding:"required"`
 		Next         string `json:"next" binding:"required"`
 	}
