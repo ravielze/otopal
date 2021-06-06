@@ -5,7 +5,7 @@ import "strings"
 type reminderType string
 
 const OIL reminderType = "OIL"
-const TUNE_UP reminderType = "TUNEUP"
+const TUNE_UP reminderType = "TUNE_UP"
 
 func ReminderType(x string) reminderType {
 	switch strings.ToLower(x) {
