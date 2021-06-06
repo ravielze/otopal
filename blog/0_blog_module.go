@@ -17,6 +17,7 @@ func (Module) Name() string {
 
 func (Module) Reset(db *gorm.DB) {
 	db.Migrator().DropTable(&Blog{})
+	db.Migrator().DropTable("blog_thumbnails")
 }
 
 func (m Module) Usecase() IUsecase {

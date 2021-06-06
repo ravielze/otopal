@@ -16,7 +16,7 @@ type Blog struct {
 	Content         string `gorm:"type:VARCHAR(2097152);"`
 	AuthorID        uint
 	Author          auth.User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Thumbnails      []filemanager.File `gorm:"many2many:blog_thumbnails;constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT;"`
+	Thumbnails      []filemanager.File `gorm:"many2many:blog_thumbnails;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 const BLOG_PER_PAGE uint = 10
